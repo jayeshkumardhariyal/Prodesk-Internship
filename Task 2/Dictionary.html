@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Dictionary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f9fafb;
+      color: #2e2e2e;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem 2.5rem 3rem 2.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    input[type="search"] {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.125rem;
+      /*18px*/
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+    }
+
+    ::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      background: url('data:image/svg+xml;utf8,<svg fill="none" stroke="%23999999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>') no-repeat center center;
+      cursor: pointer;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #f2f2f2;
+      border-radius: 12px;
+      padding: 0.65rem 0.9rem;
+    }
+
+    .search-bar input[type=search] {
+      flex-grow: 1;
+      border: none;
+      background: transparent;
+      outline-offset: 4px;
+    }
+
+    .search-bar input[type=search]:focus {
+      outline: 2px solid #6366F1;
+      outline-offset: 2px;
+      background: white;
+    }
+
+    .btn-play {
+      background-color: #6b46c1;
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      box-shadow: 0 3px 8px rgba(107, 70, 193, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-play:hover {
+      background-color: #553c9a;
+    }
+
+    .btn-play svg {
+      fill: white;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-left: 3px;
+      /* visually center the play arrow */
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Georgia', serif;
+      font-weight: 500;
+      font-size: 1rem;
+      user-select: none;
+    }
+
+    .toggle-switch input[type="checkbox"] {
+      width: 2.25rem;
+      height: 1.2rem;
+      appearance: none;
+      background: #a3a3a3;
+      border-radius: 9999px;
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-switch input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 9999px;
+      background: white;
+      transition: transform 0.3s ease;
+      will-change: transform;
+    }
+
+    .toggle-switch input[type="checkbox"]:checked {
+      background: #6b46c1;
+    }
+
+    .toggle-switch input[type="checkbox"]:checked::before {
+      transform: translateX(1.1rem);
+    }
+
+    .pronunciation {
+      color: #6366f1;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 0.15rem;
+      user-select: none;
+    }
+
+    h1.word {
+      font-family: 'Georgia', serif;
+      font-weight: 700;
+      font-size: 2.8rem;
+      margin: 1.8rem 0 0.1rem 0;
+      user-select: none;
+      line-height: 1.1;
+    }
+
+    strong,
+    b {
+      font-weight: 700;
+    }
+
+    .part-of-speech {
+      margin-top: 3rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #444444;
+      margin-bottom: 0.5rem;
+      user-select: none;
+    }
+
+    .meaning-list {
+      margin-left: 1.1rem;
+      margin-bottom: 1.6rem;
+      list-style-type: disc;
+      font-size: 1rem;
+      line-height: 1.45;
+      color: #3c3c3c;
+    }
+
+    .meaning-list li {
+      margin-bottom: 0.6rem;
+    }
+
+    .meaning-quote {
+      color: #6b7280;
+      font-style: italic;
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+      user-select: none;
+    }
+
+    .synonym {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 0.2rem;
+      user-select: none;
+    }
+
+    .synonym a {
+      color: #7c3aed;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .synonym a:hover {
+      color: #5a21a0;
+      text-decoration: underline;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 1.4rem 0 1.8rem 0;
+    }
+
+    .source-link {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #4b5563;
+      user-select: none;
+    }
+
+    .source-link a {
+      color: #6b46c1;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .source-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Dark mode styles */
+    body.dark {
+      background-color: #181818;
+      color: #ddd;
+    }
+
+    body.dark .container {
+      background-color: #222;
+      box-shadow: none;
+    }
+
+    body.dark input[type="search"]:focus {
+      background: #181818;
+      color: #eee;
+      outline-color: #9a7ced;
+    }
+
+    body.dark .search-bar {
+      background: #292929;
+    }
+
+    body.dark .pronunciation {
+      color: #cbbcff;
+    }
+
+    body.dark .btn-play {
+      background-color: #9a7ced;
+      box-shadow: 0 3px 8px rgba(154, 124, 237, 0.6);
+    }
+
+    body.dark .btn-play:hover {
+      background-color: #785ec7;
+    }
+
+    body.dark .meaning-list li {
+      color: #ccc;
+    }
+
+    body.dark .synonym a {
+      color: #cbbcff;
+    }
+
+    body.dark .synonym a:hover {
+      color: #9572e6;
+    }
+
+    body.dark hr {
+      border-color: #444;
+    }
+
+    body.dark .source-link {
+      color: #aaa;
+    }
+
+    body.dark .source-link a {
+      color: #cbbcff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" role="main" aria-label="Dictionary">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-12 mb-10 select-none">
+      <div class="flex items-center gap-3">
+        <button type="button" aria-label="Open menu"
+          class="rounded border border-gray-300 dark:border-gray-600 w-9 h-9 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
+            aria-hidden="true">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <label for="font-select" class="text-gray-700 dark:text-gray-300 font-medium cursor-pointer">Serif</label>
+        <select id="font-select" aria-label="Select font style"
+          class="border border-gray-300 dark:border-gray-600 rounded px-2 py-0.5 text-gray-700 dark:text-gray-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
+          <option value="serif" selected>Serif</option>
+          <option value="sans-serif">Sans Serif</option>
+          <option value="monospace">Mono</option>
+        </select>
+      </div>
+      <div class="toggle-switch" title="Toggle Dark Mode">
+        <label for="dark-mode-toggle" class="cursor-pointer select-none">🌙</label>
+        <input aria-label="Toggle dark mode" type="checkbox" id="dark-mode-toggle" />
+      </div>
+    </header>
+
+    <form id="dictionary-form" class="search-bar" role="search" aria-label="Dictionary search form"
+      onsubmit="event.preventDefault(); searchWord();">
+      <input type="search" id="search-input" name="search" placeholder="keyboard" autocomplete="off"
+        aria-describedby="search-hint" aria-required="true" />
+      <button type="submit" aria-label="Search" class="btn-play" title="Play pronunciation">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"></path>
+        </svg>
+      </button>
+    </form>
+
+    <article id="result" class="mt-6" aria-live="polite" aria-atomic="true">
+      <header>
+        <h1 class="word">keyboard</h1>
+        <p class="pronunciation" id="pronunciation">/ˈkiːbɔːrd/</p>
+      </header>
+      <section aria-labelledby="noun-label" class="mt-4">
+        <h2 id="noun-label" class="part-of-speech">Noun</h2>
+        <ul class="meaning-list">
+          <li>(etc.) A set of keys used to operate a typewriter, computer etc.</li>
+          <li>A component of many instruments including the piano, organ, and harpsichord consisting of usually black
+            and white keys that cause different notes to be produced when struck.</li>
+          <li>A device with keys of a musical keyboard, used to control electronic sound-producing devices which may be
+            built into or separate from the keyboard device.</li>
+        </ul>
+        <p class="synonym">Synonyms: <a href="#" tabindex="-1">electronic keyboard</a></p>
+      </section>
+      <hr />
+      <section aria-labelledby="verb-label" class="mt-4">
+        <h2 id="verb-label" class="part-of-speech">Verb</h2>
+        <ul class="meaning-list">
+          <li>To type on a computer keyboard.</li>
+          <p class="meaning-quote">"Keyboarding is the part of this job I hate the most."</p>
+        </ul>
+      </section>
+      <hr />
+      <footer class="source-link">
+        <p>Source: <a href="https://en.oxforddictionaries.com/definition/keyboard" target="_blank"
+            rel="noopener noreferrer">https://en.oxforddictionaries.com/definition/keyboard</a></p>
+      </footer>
+    </article>
+  </div>
+
+  <script>
+    // Dark mode toggle logic and font switching
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+    const fontSelect = document.getElementById('font-select');
+
+    // Load preferences from localStorage or defaults
+    const storedDark = localStorage.getItem('darkModeEnabled');
+    const storedFont = localStorage.getItem('fontChoice');
+
+    if (storedDark === 'true') {
+      body.classList.add('dark');
+      darkToggle.checked = true;
+    }
+
+    if (storedFont) {
+      fontSelect.value = storedFont;
+      updateFont(storedFont);
+    } else {
+      updateFont(fontSelect.value);
+    }
+
+    darkToggle.addEventListener('change', () => {
+      if (darkToggle.checked) {
+        body.classList.add('dark');
+        localStorage.setItem('darkModeEnabled', 'true');
+      } else {
+        body.classList.remove('dark');
+        localStorage.setItem('darkModeEnabled', 'false');
+      }
+    });
+
+    fontSelect.addEventListener('change', () => {
+      updateFont(fontSelect.value);
+      localStorage.setItem('fontChoice', fontSelect.value);
+    });
+
+    function updateFont(font) {
+      switch (font) {
+        case 'serif':
+          body.style.fontFamily = "'Georgia', serif";
+          break;
+        case 'sans-serif':
+          body.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+          break;
+        case 'monospace':
+          body.style.fontFamily = "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace";
+          break;
+        default:
+          body.style.fontFamily = "'Georgia', serif";
+      }
+    }
+
+    // Speech synthesis for pronunciation and search word
+    const btnPlay = document.querySelector('.btn-play');
+    const inputSearch = document.getElementById('search-input');
+    const wordHeading = document.querySelector('h1.word');
+    const pronunciationDisplay = document.getElementById('pronunciation');
+
+    btnPlay.addEventListener('click', () => {
+      const word = wordHeading.textContent.trim();
+      if (word) {
+        speak(word);
+      }
+    });
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        speechSynthesis.cancel(); // cancel previous
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    // The dictionary data is hard-coded as in example:
+    const dictionaryData = {
+      keyboard: {
+        pronunciation: "/ˈkiːbɔːrd/",
+        noun: {
+          meanings: [
+            "(etc.) A set of keys used to operate a typewriter, computer etc.",
+            "A component of many instruments including the piano, organ, and harpsichord consisting of usually black and white keys that cause different notes to be produced when struck.",
+            "A device with keys of a musical keyboard, used to control electronic sound-producing devices which may be built into or separate from the keyboard device."
+          ],
+          synonyms: ["electronic keyboard"]
+        },
+        verb: {
+          meanings: [
+            "To type on a computer keyboard."
+          ],
+          quote: "Keyboarding is the part of this job I hate the most."
+        },
+        source: "https://en.oxforddictionaries.com/definition/keyboard"
+      }
+    };
+
+    function searchWord() {
+      const searchVal = inputSearch.value.trim().toLowerCase();
+      if (!searchVal) return;
+
+      // If word found in dictionary, show data, else show not found
+      if (dictionaryData[searchVal]) {
+        const entry = dictionaryData[searchVal];
+        wordHeading.textContent = searchVal;
+        pronunciationDisplay.textContent = entry.pronunciation || "";
+
+        // Populate noun meanings
+        const nounSection = document.querySelector('section[aria-labelledby="noun-label"]');
+        let nounListHtml = "";
+        entry.noun.meanings.forEach(mean => {
+          nounListHtml += `<li>${mean}</li>`;
+        });
+        nounSection.querySelector('.meaning-list').innerHTML = nounListHtml;
+
+        if (entry.noun.synonyms && entry.noun.synonyms.length) {
+          nounSection.querySelector('.synonym').innerHTML = "Synonyms: " + entry.noun.synonyms.map(syn => `<a href="#" tabindex="-1">${syn}</a>`).join(", ");
+        } else {
+          nounSection.querySelector('.synonym').innerHTML = "";
+        }
+
+        // Populate verb meanings
+        const verbSection = document.querySelector('section[aria-labelledby="verb-label"]');
+        let verbListHtml = "";
+        entry.verb.meanings.forEach(mean => {
+          verbListHtml += `<li>${mean}</li>`;
+        });
+        verbSection.querySelector('.meaning-list').innerHTML = verbListHtml;
+        if (entry.verb.quote) {
+          verbSection.querySelector('.meaning-quote').textContent = `"${entry.verb.quote}"`;
+        } else {
+          verbSection.querySelector('.meaning-quote').textContent = "";
+        }
+        // Source link
+        const sourceLink = document.querySelector('.source-link a');
+        sourceLink.href = entry.source;
+        sourceLink.textContent = entry.source;
+      } else {
+        // Word not found fallback
+        wordHeading.textContent = searchVal;
+        pronunciationDisplay.textContent = "";
+        document.querySelector('section[aria-labelledby="noun-label"] .meaning-list').innerHTML
+      }
+  </script>
+</body>
+</head>
