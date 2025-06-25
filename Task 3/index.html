@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Secure Password Generator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
+  body {
+    font-family: 'Fira Code', monospace;
+    background-color: #7eda56;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .container {
+    background: #181818;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgb(0 0 0 / 0.45);
+    padding: 24px 28px 36px;
+    max-width: 420px;
+    width: 100%;
+    color: white;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: -1.6rem;
+  }
+  .toggle-container label {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .password-box {
+    display: flex;
+    background: #222;
+    border-radius: 4px;
+    font-size: 1.15rem;
+    letter-spacing: 0.05em;
+    padding: 10px 12px;
+    color: #ccc;
+    margin-bottom: 1.8rem;
+  }
+  .password-text {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    color: #ccc;
+    font-family: 'Fira Code', monospace;
+    font-weight: 500;
+    word-break: break-all;
+    outline-offset: 2px;
+  }
+  .password-text:focus {
+    outline: 2px solid #7eda56;
+    color: white;
+  }
+  .copy-btn {
+    background: transparent;
+    border: none;
+    color: #7eda56;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    transition: color 0.2s ease-in-out;
+  }
+  .copy-btn:hover {
+    color: #a7f37b;
+  }
+  .copy-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+  .divider {
+    border-top: 1px dotted #555;
+    margin-bottom: 18px;
+  }
+
+  .customize-section {
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+  .custom-options {
+    background: #222;
+    border: 2px solid #333;
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    color: #bbb;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  .option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .option input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid #555;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+  }
+  .option input[type="checkbox"]:checked {
+    background-color: #7eda56;
+    border-color: #7eda56;
+  }
+  .option input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 5px;
+    height: 10px;
+    border: solid #181818;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .vertical-center {
+    display: flex;
+    align-items: center;
+  }
+
+  .length-control {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 400;
+  }
+  .length-label {
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .length-input {
+    width: 52px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    user-select: text;
+  }
+  .length-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: #333;
+    outline: none;
+    cursor: pointer;
+    margin-top: 6px;
+    background-image: linear-gradient(#7eda56, #7eda56);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease-in-out;
+  }
+  .length-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #7eda56;
+    cursor: pointer;
+    border: none;
+    margin-top: -6px;
+    transition: background-color 0.2s ease-in-out;
+  }
+  .length-slider::-webkit-slider-thumb:hover {
+    background-color: #a7f37b;
+  }
+  .length-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #7eda56;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease-in-out;
+  }
+  .length-slider::-moz-range-thumb:hover {
+    background-color: #a7f37b;
+  }
+
+  .generate-btn {
+    margin-top: 18px;
+    padding: 10px 18px;
+    background-color: #7eda56;
+    color: #181818;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease-in-out;
+    user-select: none;
+  }
+  .generate-btn:hover {
+    background-color: #a7f37b;
+  }
+
+  footer {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 0.86rem;
+    color: #7eda56;
+    user-select: none;
+  }
+  footer a {
+    color: #7eda56;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s ease-in-out;
+  }
+  footer a:hover {
+    color: #a7f37b;
+  }
+  footer .heart {
+    color: #f25a5a;
+    margin: 0 4px;
+  }
+
+  /* Dark mode with toggle switch */
+  body.light-mode {
+    background-color: #e0ffe0;
+  }
+  body.light-mode .container {
+    background: #f6f6f6;
+    color: #181818;
+    box-shadow: 0 12px 24px rgb(0 0 0 / 0.15);
+  }
+  body.light-mode .password-box {
+    background: #d0d0d0;
+    color: #181818;
+  }
+  body.light-mode .password-text {
+    color: #181818;
+  }
+  body.light-mode .copy-btn {
+    color: #4d7c16;
+  }
+  body.light-mode .copy-btn:hover {
+    color: #7eda56;
+  }
+  body.light-mode .custom-options {
+    background: #ddd;
+    border-color: #bbb;
+    color: #181818;
+  }
+  body.light-mode .option input[type="checkbox"]:checked {
+    background-color: #7eda56;
+    border-color: #7eda56;
+  }
+  body.light-mode .length-slider {
+    background: #bbb;
+    background-image: linear-gradient(#7eda56, #7eda56);
+  }
+  body.light-mode .length-slider::-webkit-slider-thumb {
+    background: #4d7c16;
+  }
+  body.light-mode .length-slider::-webkit-slider-thumb:hover {
+    background-color: #7eda56;
+  }
+  body.light-mode .generate-btn {
+    background-color: #7eda56;
+    color: #181818;
+  }
+  body.light-mode .generate-btn:hover {
+    background-color: #a7f37b;
+  }
+  body.light-mode footer {
+    color: #4d7c16;
+  }
+  body.light-mode footer a {
+    color: #4d7c16;
+  }
+  body.light-mode footer a:hover {
+    color: #7eda56;
+  }
+</style>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="mainTitle">
+    <div class="header-with-toggle">
+      <h1 id="mainTitle">&gt; Generate a secure password</h1>
+      <div class="toggle-container" title="Toggle light/dark mode" aria-label="Toggle light and dark mode">
+        <label for="modeToggle" aria-hidden="true">🌙</label>
+        <input type="checkbox" aria-checked="false" role="switch" id="modeToggle" />
+      </div>
+    </div>
+    <form id="passwordForm" onsubmit="return false;" autocomplete="off" aria-describedby="passwordOutputDesc">
+      <div class="password-box" aria-live="polite" aria-atomic="true" aria-relevant="text">
+        <input id="passwordOutput" class="password-text" readonly aria-readonly="true" type="text" value="" aria-label="Generated password" />
+        <button type="button" class="copy-btn" aria-label="Copy password to clipboard" title="Copy password">
+          <svg class="copy-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M19 21H9c-1.1 0-2-.9-2-2v-6h2v6h10v-6h2v6c0 1.1-.9 2-2 2zm-2-18H5c-1.1 0-2 .9-2 2v12h2V5h10V3z"/></svg>
+        </button>
+      </div>
+      <hr class="divider" />
+      <fieldset class="customize-section" aria-label="Customize your password">
+        <legend class="customize-section">Customize your password</legend>
+        <div class="custom-options">
+          <div class="option-group" role="group" aria-label="Character options">
+            <label class="option" for="includeUppercase">
+              <input type="checkbox" id="includeUppercase" checked />
+              Uppercase
+            </label>
+            <label class="option" for="includeLowercase">
+              <input type="checkbox" id="includeLowercase" checked />
+              Lowercase
+            </label>
+            <label class="option" for="includeNumbers">
+              <input type="checkbox" id="includeNumbers" checked />
+              Numeric
+            </label>
+            <label class="option" for="includeSymbols">
+              <input type="checkbox" id="includeSymbols" />
+              Symbols
+            </label>
+          </div>
+          <div class="length-control" role="group" aria-label="Password length control">
+            <label for="passwordLength" class="length-label">Password Length:</label>
+            <input type="number" id="passwordLength" class="length-input" min="6" max="50" value="20" aria-valuemin="6" aria-valuemax="50" aria-valuenow="20" aria-label="Password length setter" />
+            <input type="range" min="6" max="50" value="20" class="length-slider" id="passwordLengthSlider" aria-hidden="true" />
+          </div>
+        </div>
+      </fieldset>
+      <button type="submit" class="generate-btn" aria-label="Generate password">Generate</button>
+    </form>
+    <footer>
+      Made with <span class="heart" aria-label="heart">♥</span> by <a href="https://github.com/jayeshkumardhariyal/Prodesk-Internship" target="_blank" rel="noopener noreferrer">Jayesh Dhariyal</a>
+    </footer>
+  </main>
+
+<script>
+  const passwordOutput = document.getElementById('passwordOutput');
+  const copyBtn = document.querySelector('.copy-btn');
+  const form = document.getElementById('passwordForm');
+
+  const includeUppercase = document.getElementById('includeUppercase');
+  const includeLowercase = document.getElementById('includeLowercase');
+  const includeNumbers = document.getElementById('includeNumbers');
+  const includeSymbols = document.getElementById('includeSymbols');
+
+  const passwordLengthInput = document.getElementById('passwordLength');
+  const passwordLengthSlider = document.getElementById('passwordLengthSlider');
+
+  const modeToggle = document.getElementById('modeToggle');
+  const body = document.body;
+
+  // Character sets
+  const charSets = {
+    uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lowercase: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
+    symbols: '!@#$%^&*()_+[]{}|;:,.<>?'
+  };
+
+  // Generate password function
+  function generatePassword() {
+    let length = parseInt(passwordLengthInput.value, 10);
+    if (isNaN(length) || length < 6) length = 6;
+    else if (length > 50) length = 50;
+
+    let characters = '';
+    if (includeUppercase.checked) characters += charSets.uppercase;
+    if (includeLowercase.checked) characters += charSets.lowercase;
+    if (includeNumbers.checked) characters += charSets.numbers;
+    if (includeSymbols.checked) characters += charSets.symbols;
+
+    // If no character sets selected, show empty and return
+    if (characters.length === 0) {
+      passwordOutput.value = '';
+      return;
+    }
+
+    // Ensure password contains at least one character of each selected type
+    let passwordArray = [];
+    let mustInclude = [];
+
+    if (includeUppercase.checked) mustInclude.push(randomChar(charSets.uppercase));
+    if (includeLowercase.checked) mustInclude.push(randomChar(charSets.lowercase));
+    if (includeNumbers.checked) mustInclude.push(randomChar(charSets.numbers));
+    if (includeSymbols.checked) mustInclude.push(randomChar(charSets.symbols));
+
+    // Fill the rest
+    for (let i = 0; i < length - mustInclude.length; i++) {
+      passwordArray.push(randomChar(characters));
+    }
+
+    // Add the mustInclude chars
+    passwordArray = passwordArray.concat(mustInclude);
+
+    // Shuffle the result
+    passwordArray = shuffleArray(passwordArray);
+
+    // Join to string
+    passwordOutput.value = passwordArray.join('');
+  }
+
+  // Random character from string
+  function randomChar(str) {
+    return str.charAt(Math.floor(Math.random() * str.length));
+  }
+
+  // Shuffle array using Fisher-Yates
+  function shuffleArray(arr) {
+    let currentIndex = arr.length, randomIndex;
+
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      [arr[currentIndex], arr[randomIndex]] = [
+        arr[randomIndex], arr[currentIndex]];
+    }
+
+    return arr;
+  }
+
+  // Sync slider and number input
+  function syncLengthInputs(source) {
+    let val = source === 'input' 
+      ? parseInt(passwordLengthInput.value, 10) 
+      : parseInt(passwordLengthSlider.value, 10);
+
+    if (isNaN(val) || val < 6) val = 6;
+    else if (val > 50) val = 50;
+
+    passwordLengthInput.value = val;
+    passwordLengthSlider.value = val;
+    passwordLengthInput.setAttribute('aria-valuenow', val);
+  }
+
+  // Copy password to clipboard with focus and aria live announcement
+  copyBtn.addEventListener('click', () => {
+    if (!passwordOutput.value) return;
+    passwordOutput.select();
+    passwordOutput.setSelectionRange(0, 9999); // For mobile devices
+
+    navigator.clipboard.writeText(passwordOutput.value)
+      .then(() => {
+        copyBtn.setAttribute('aria-label', 'Password copied!');
+        setTimeout(() => {
+          copyBtn.setAttribute('aria-label', 'Copy password to clipboard');
+        }, 2000);
+      })
+      .catch(() => {
+        alert('Failed to copy password. Please copy manually.');
+      });
+  });
+
+  // Generate button click or form submit
+  form.addEventListener('submit', () => {
+    generatePassword();
+  });
+
+  // Sync inputs event listeners
+  passwordLengthInput.addEventListener('input', () => {
+    syncLengthInputs('input');
+  });
+  passwordLengthSlider.addEventListener('input', () => {
+    syncLengthInputs('slider');
+  });
+
+  // Mode toggle
+  modeToggle.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      body.classList.add('light-mode');
+      modeToggle.setAttribute('aria-checked', 'true');
+    } else {
+      body.classList.remove('light-mode');
+      modeToggle.setAttribute('aria-checked', 'false');
+    }
+  });
+
+  // Initially generate a password on page load
+  window.onload = () => {
+    generatePassword();
+  };
+</script>
+</body>
+</html>
+
