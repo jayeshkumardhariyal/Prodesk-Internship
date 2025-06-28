@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi-step Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles to closely match the design */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar {
+      background: #483eff;
+      border-radius: 0.75rem; /* rounded-xl */
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem 1.5rem 1.75rem;
+      color: white;
+      width: 320px;
+      font-weight: 700;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .sidebar .step-indicator {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      cursor: default;
+      gap: 1rem;
+    }
+    .sidebar .step-number {
+      border: 1.75px solid white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .sidebar .step-number.active {
+      background: #eef2ff;
+      color: #483eff;
+      border: none;
+    }
+    .sidebar .step-text small {
+      display: block;
+      font-weight: 400;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 0.125rem;
+      letter-spacing: 0.07em;
+    }
+    .sidebar .step-text span {
+      font-weight: 700;
+      font-size: 0.875rem;
+      letter-spacing: 0.03em;
+    }
+    .sidebar .background-shapes {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      user-select: none;
+      pointer-events: none;
+      width: 100%;
+      height: 160px;
+      z-index: 1;
+    }
+    .background-shapes svg circle.big {
+      fill: #d7a88e; /* peach circle */
+    }
+    .background-shapes svg path.waves {
+      fill: #5b54ff; /* blue wave */
+      opacity: 0.8;
+    }
+    .background-shapes svg path.waves2 {
+      fill: #e0908b; /* dusty pink wave */
+      opacity: 0.9;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2rem 2rem 3.5rem 2rem;
+      flex-grow: 1;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .form-title {
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: #1e293b; /* slate-800 */
+    }
+    .form-desc {
+      margin-top: 0.25rem;
+      font-size: 0.9rem;
+      color: #94a3b8; /* slate-400 */
+      font-weight: 400;
+    }
+    label {
+      font-size: 0.825rem;
+      font-weight: 700;
+      color: #0f172a; /* slate-900 */
+      display: block;
+      margin-top: 1.5rem;
+      margin-bottom: 0.375rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1.5px solid #cbd5e1; /* slate-300 */
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: #64748b; /* slate-500 */
+      font-weight: 600;
+      outline-offset: 2px;
+      outline-color: transparent;
+      transition: outline-color 0.2s ease;
+    }
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="tel"]::placeholder {
+      color: #cbd5e1; /* slate-300 */
+      font-weight: 400;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
+      outline-color: #483eff; /* primary blue */
+      border-color: #483eff;
+      color: #0f172a;
+    }
+    .btn-next {
+      background: #1e293b; /* slate-900 */
+      color: white;
+      padding: 0.5rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      align-self: flex-end;
+      margin-top: 3.25rem;
+      transition: background-color 0.2s ease;
+      box-shadow: 0 4px 10px rgba(72, 62, 255, 0.4);
+    }
+    .btn-next:hover:not(:disabled) {
+      background: #2e3be3;
+      box-shadow: 0 6px 14px rgba(72, 62, 255, 0.6);
+    }
+    .btn-next:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @media (max-width: 768px) {
+      body > div#app {
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        border-radius: 0;
+        padding: 1rem 1rem;
+        overflow-x: auto;
+        gap: 1rem;
+      }
+      .sidebar .step-indicator {
+        margin-bottom: 0;
+        flex: 1 0 auto;
+      }
+      .background-shapes {
+        display: none;
+      }
+      .form-container {
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 1.5rem;
+      }
+      .btn-next {
+        margin-top: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="flex min-h-screen max-w-7xl mx-auto my-12 rounded-xl shadow-md overflow-hidden">
+    <aside class="sidebar relative shrink-0">
+      <div class="steps-container z-10 relative space-y-2">
+        <div class="step-indicator" data-step="1">
+          <div class="step-number active" aria-current="step">1</div>
+          <div class="step-text">
+            <small>Step 1</small>
+            <span>YOUR INFO</span>
+          </div>
+        </div>
+        <div class="step-indicator" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <small>Step 2</small>
+            <span>SELECT PLAN</span>
+          </div>
+        </div>
+        <div class="step-indicator" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <small>Step 3</small>
+            <span>ADD-ONS</span>
+          </div>
+        </div>
+        <div class="step-indicator" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-text">
+            <small>Step 4</small>
+            <span>SUMMARY</span>
+          </div>
+        </div>
+      </div>
+      <div class="background-shapes pointer-events-none select-none absolute bottom-0 left-0 w-full h-[160px]" aria-hidden="true">
+        <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;">
+          <circle class="big" cx="56" cy="120" r="40" />
+          <path class="waves" d="M0 134c15 3 40-7 55-15 25-13 26-40 54-54 44-22 76-12 93-11 14.5.7 25.9 6.8 34 13 11 9 23 22 34 34V160H0v-26z" />
+          <path class="waves2" d="M249 155c-13-11-26-22-34-28-57-42-88-57-110-61-15-3-42-7-69 10-15 9-23 26-27 33-4.3 11-5 19-5 19h245z" />
+        </svg>
+      </div>
+    </aside>
+
+    <main class="form-container" role="main" aria-labelledby="formTitle">
+      <form id="multiStepForm" novalidate>
+        <!-- Step 1: Personal Info -->
+        <section class="form-step" data-step="1" aria-live="polite">
+          <h1 id="formTitle" class="form-title">Personal info</h1>
+          <p class="form-desc">Please provide your name, email address, and phone number.</p>
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required autocomplete="name" placeholder="e.g. Stephen King" />
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required autocomplete="email" placeholder="e.g. stephenking@lorem.com" />
+          <label for="phone">Phone Number</label>
+          <input type="tel" pattern="^\+?[\d\s\-]{7,15}$" id="phone" name="phone" required autocomplete="tel" placeholder="e.g. +1 234 567 890" />
+          <button type="button" class="btn-next" id="nextBtn1" aria-label="Go to next step: Select Plan" disabled>Next Step</button>
+        </section>
+
+        <!-- Step 2: Select Plan -->
+        <section class="form-step hidden" data-step="2" aria-live="polite">
+          <h1 class="form-title">Select your plan</h1>
+          <p class="form-desc">Choose the plan that best fits your needs.</p>
+          <fieldset class="plan-options space-y-4" aria-required="true">
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="radio" name="plan" value="arcade" required class="peer hidden" />
+              <div class="w-12 h-12 rounded-md bg-indigo-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 select-none">A</div>
+              <div class="flex flex-col">
+                <span class="font-bold text-indigo-900 dark:text-indigo-300">Arcade</span>
+                <span class="text-sm text-slate-500">Monthly - $9/mo</span>
+              </div>
+            </label>
+
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="radio" name="plan" value="advanced" class="peer hidden" />
+              <div class="w-12 h-12 rounded-md bg-indigo-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 select-none">Ad</div>
+              <div class="flex flex-col">
+                <span class="font-bold text-indigo-900">Advanced</span>
+                <span class="text-sm text-slate-500">Monthly - $12/mo</span>
+              </div>
+            </label>
+
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="radio" name="plan" value="pro" class="peer hidden" />
+              <div class="w-12 h-12 rounded-md bg-indigo-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 select-none">P</div>
+              <div class="flex flex-col">
+                <span class="font-bold text-indigo-900">Pro</span>
+                <span class="text-sm text-slate-500">Monthly - $15/mo</span>
+              </div>
+            </label>
+          </fieldset>
+          <div class="mt-12 flex justify-end gap-4">
+            <button type="button" class="btn-prev text-indigo-600 font-semibold hover:underline" aria-label="Go back to previous step: Your Info">Go Back</button>
+            <button type="button" class="btn-next" id="nextBtn2" disabled>Next Step</button>
+          </div>
+        </section>
+
+        <!-- Step 3: Add-ons -->
+        <section class="form-step hidden" data-step="3" aria-live="polite">
+          <h1 class="form-title">Pick add-ons</h1>
+          <p class="form-desc">Add-ons help enhance your gaming experience.</p>
+          <fieldset class="addon-options space-y-3" aria-required="false">
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="checkbox" name="addons" value="online-service" class="peer hidden" />
+              <div class="flex-grow">
+                <span class="font-bold text-indigo-900">Online service</span>
+                <p class="text-sm text-slate-400">Access to multiplayer games</p>
+              </div>
+              <span class="text-indigo-600 font-semibold text-sm">+$1/mo</span>
+            </label>
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="checkbox" name="addons" value="larger-storage" class="peer hidden" />
+              <div class="flex-grow">
+                <span class="font-bold text-indigo-900">Larger storage</span>
+                <p class="text-sm text-slate-400">Extra 1TB of cloud save</p>
+              </div>
+              <span class="text-indigo-600 font-semibold text-sm">+$2/mo</span>
+            </label>
+            <label class="flex gap-4 items-center cursor-pointer border border-slate-200 rounded-md p-3 hover:border-indigo-600 transition-colors" tabindex="0">
+              <input type="checkbox" name="addons" value="custom-profile" class="peer hidden" />
+              <div class="flex-grow">
+                <span class="font-bold text-indigo-900">Customizable Profile</span>
+                <p class="text-sm text-slate-400">Custom theme on your profile</p>
+              </div>
+              <span class="text-indigo-600 font-semibold text-sm">+$2/mo</span>
+            </label>
+          </fieldset>
+          <div class="mt-12 flex justify-end gap-4">
+            <button type="button" class="btn-prev text-indigo-600 font-semibold hover:underline" aria-label="Go back to previous step: Select Plan">Go Back</button>
+            <button type="button" class="btn-next" id="nextBtn3">Next Step</button>
+          </div>
+        </section>
+
+        <!-- Step 4: Summary -->
+        <section class="form-step hidden" data-step="4" aria-live="polite">
+          <h1 class="form-title">Summary</h1>
+          <p class="form-desc">Double-check your information before confirming.</p>
+          <div class="summary-content mt-6 text-slate-700 text-sm space-y-4">
+            <div>
+              <strong>Name:</strong>
+              <span id="summary-name"></span>
+            </div>
+            <div>
+              <strong>Email:</strong>
+              <span id="summary-email"></span>
+            </div>
+            <div>
+              <strong>Phone:</strong>
+              <span id="summary-phone"></span>
+            </div>
+            <div>
+              <strong>Selected Plan:</strong>
+              <span id="summary-plan"></span>
+            </div>
+            <div>
+              <strong>Add-ons:</strong>
+              <ul id="summary-addons" class="list-disc list-inside">
+              </ul>
+            </div>
+          </div>
+          <div class="mt-12 flex justify-end gap-4">
+            <button type="button" class="btn-prev text-indigo-600 font-semibold hover:underline" aria-label="Go back to previous step: Add-ons">Go Back</button>
+            <button type="submit" class="btn-next" id="confirmBtn">Confirm</button>
+          </div>
+        </section>
+
+        <!-- Confirmation message (hidden initially) -->
+        <section class="form-step hidden" data-step="5" aria-live="polite" role="alert" tabindex="0" style="text-align:center;">
+          <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/84c6f209-6be1-4430-96fd-981a4f7de87d.png" alt="Large green check mark icon indicating successful confirmation" class="mx-auto mb-6" />
+          <h1 class="form-title">Thank you!</h1>
+          <p class="form-desc max-w-md mx-auto">
+            Thank you for confirming your subscription! We hope you have fun using our service.
+            If you ever need support, please feel free to reach out.
+          </p>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const form = document.getElementById('multiStepForm');
+      const steps = Array.from(form.querySelectorAll('.form-step'));
+      const stepIndicators = document.querySelectorAll('.sidebar .step-indicator');
+      let currentStep = 0;
+
+      // Elements for validation in step 1
+      const nameInput = form.querySelector('#name');
+      const emailInput = form.querySelector('#email');
+      const phoneInput = form.querySelector('#phone');
+      const nextBtn1 = form.querySelector('#nextBtn1');
+
+      // Step 2 controls
+      const planRadios = form.querySelectorAll('input[name="plan"]');
+      const nextBtn2 = form.querySelector('#nextBtn2');
+
+      // Step 3 controls
+      const nextBtn3 = form.querySelector('#nextBtn3');
+
+      // Step 4 summary elements
+      const summaryName = form.querySelector('#summary-name');
+      const summaryEmail = form.querySelector('#summary-email');
+      const summaryPhone = form.querySelector('#summary-phone');
+      const summaryPlan = form.querySelector('#summary-plan');
+      const summaryAddons = form.querySelector('#summary-addons');
+
+      // Confirm button
+      const confirmBtn = form.querySelector('#confirmBtn');
+
+      // Prev buttons
+      const prevButtons = form.querySelectorAll('.btn-prev');
+
+      // Helper to show step by index
+      function showStep(index) {
+        steps.forEach((step, i) => {
+          if (i === index) {
+            step.classList.remove('hidden');
+            step.setAttribute('aria-hidden', 'false');
+            // focus first form element inside step
+            const focusable = step.querySelector('input,button,select,textarea');
+            if (focusable) focusable.focus();
+          } else {
+            step.classList.add('hidden');
+            step.setAttribute('aria-hidden', 'true');
+          }
+        });
+        stepIndicators.forEach((indicator, i) => {
+          const circle = indicator.querySelector('.step-number');
+          if (i === index) {
+            circle.classList.add('active');
+            indicator.setAttribute('aria-current', 'step');
+          } else {
+            circle.classList.remove('active');
+            indicator.removeAttribute('aria-current');
+          }
+        });
+        currentStep = index;
+      }
+
+      function validateStep1() {
+        // simple validation: required + email format + phone pattern
+        const isNameValid = nameInput.value.trim().length > 0;
+        const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+        const isPhoneValid = /^\+?[\d\s\-]{7,15}$/.test(phoneInput.value.trim());
+
+        return isNameValid && isEmailValid && isPhoneValid;
+      }
+
+      const updateNextBtn1 = () => {
+        nextBtn1.disabled = !validateStep1();
+      };
+      nameInput.addEventListener('input', updateNextBtn1);
+      emailInput.addEventListener('input', updateNextBtn1);
+      phoneInput.addEventListener('input', updateNextBtn1);
+
+      const validateStep2 = () => {
+        return Array.from(planRadios).some(radio => radio.checked);
+      };
+      const updateNextBtn2 = () => {
+        nextBtn2.disabled = !validateStep2();
+      };
+      planRadios.forEach(radio => {
+        radio.addEventListener('change', updateNextBtn2);
+      });
+
+      // Step 3 - no required validation for addons
+      // Step 3 always enables next
+      nextBtn3.disabled = false;
+
+      // Navigation handlers
+      nextBtn1.addEventListener('click', () => {
+        if (validateStep1()) {
+          showStep(1);
+          updateNextBtn2();
+        }
+      });
+      nextBtn2.addEventListener('click', () => {
+        if (validateStep2()) {
+          showStep(2);
+        }
+      });
+      nextBtn3.addEventListener('click', () => {
+        // fill summary and show step 4
+        fillSummary();
+        showStep(3);
+      });
+
+      prevButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          if (currentStep > 0) {
+            showStep(currentStep - 1);
+            if (currentStep - 1 === 0) updateNextBtn1();
+            if (currentStep - 1 === 1) updateNextBtn2();
+          }
+        });
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        showStep(4);
+      });
+
+      function fillSummary() {
+        // Personal info
+        summaryName.textContent = nameInput.value.trim();
+        summaryEmail.textContent = emailInput.value.trim();
+        summaryPhone.textContent = phoneInput.value.trim();
+
+        // Plan chosen
+        const selectedPlan = Array.from(planRadios).find(r => r.checked);
+        summaryPlan.textContent = selectedPlan ? selectedPlan.nextElementSibling.querySelector('span').textContent : 'None';
+
+        // Addons chosen
+        const addonsChecked = Array.from(form.querySelectorAll('input[name="addons"]:checked'));
+        summaryAddons.innerHTML = '';
+        if (addonsChecked.length === 0) {
+          const li = document.createElement('li');
+          li.textContent = 'No add-ons selected';
+          summaryAddons.appendChild(li);
+        } else {
+          addonsChecked.forEach(a => {
+            const parentLabelText = a.nextElementSibling.querySelector('span').textContent;
+            const li = document.createElement('li');
+            li.textContent = parentLabelText;
+            summaryAddons.appendChild(li);
+          });
+        }
+      }
+
+      // Initialize
+      showStep(0);
+      updateNextBtn1();
+
+    })();
+  </script>
+</body>
+</html>
+
