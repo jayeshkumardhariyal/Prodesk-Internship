@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>News Homepage</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* Custom colors */
+  .bg-darkblue {
+    background-color: #0a0c2c;
+  }
+  .text-gold {
+    color: #e2a63a;
+  }
+  .btn-read {
+    background-color: #c36b56;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  .btn-read:hover {
+    background-color: #ae5a43;
+  }
+</style>
+</head>
+<body class="bg-white font-sans text-neutral-900">
+
+<header class="flex justify-between items-center max-w-7xl mx-auto px-8 py-6 border-b border-gray-200">
+  <div class="text-4xl font-extrabold select-none">W.</div>
+  <nav class="space-x-8 text-sm text-gray-600 font-semibold">
+    <a href="#" class="hover:text-gray-900 transition">Home</a>
+    <a href="#" class="hover:text-gray-900 transition">New</a>
+    <a href="#" class="hover:text-gray-900 transition">Popular</a>
+    <a href="#" class="hover:text-gray-900 transition">Trending</a>
+    <a href="#" class="hover:text-gray-900 transition">Categories</a>
+  </nav>
+</header>
+
+<main class="max-w-7xl mx-auto px-8 py-12 grid gap-10 grid-cols-1 md:grid-cols-3">
+
+  <!-- Left side: Big featured article -->
+  <article class="md:col-span-2 flex flex-col gap-6">
+    <div class="overflow-hidden rounded-md">
+      <img 
+        src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/8e2f85a7-91cf-477d-a1ef-569c46c284f5.png" 
+        alt="3D colorful geometric shapes in blue, yellow, and red tones on dark background" 
+        class="w-full h-auto object-cover rounded-md" 
+        onerror="this.style.display='none'" />
+    </div>
+    <h1 class="font-extrabold text-3xl max-w-xl leading-tight">The Bright Future of Web 3.0?</h1>
+    <p class="max-w-md text-gray-700">
+      We dive into the next evolution of the web that claims to put the power of the platforms back into the hands of the people. But is it really fulfilling its promise?
+    </p>
+    <button class="btn-read w-max px-5 py-2 rounded uppercase tracking-wider font-semibold">Read More</button>
+  </article>
+
+  <!-- Right side: New section -->
+  <section class="bg-darkblue p-6 rounded-md text-white flex flex-col gap-5">
+    <h2 class="text-2xl font-bold text-gold border-b border-gold pb-2">New</h2>
+    <article>
+      <h3 class="text-lg font-semibold hover:text-gold cursor-pointer transition">Hydrogen VS Electric Cars</h3>
+      <p class="text-gray-300 text-sm">Will hydrogen-fueled cars ever catch up to EVs?</p>
+    </article>
+    <article>
+      <h3 class="text-lg font-semibold hover:text-gold cursor-pointer transition">The Downsides of AI Artistry</h3>
+      <p class="text-gray-300 text-sm">What are the possible adverse effects of on-demand AI image generation?</p>
+    </article>
+    <article>
+      <h3 class="text-lg font-semibold hover:text-gold cursor-pointer transition">Is VC Funding Drying Up?</h3>
+      <p class="text-gray-300 text-sm">Private funding by VC firms is down 50% YOY. We take a look at what that means.</p>
+    </article>
+  </section>
+
+</main>
+
+<!-- Bottom section: 3 small featured previews -->
+<section class="max-w-7xl mx-auto px-8 pb-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+  <article class="flex gap-4 items-center">
+    <div class="text-4xl font-extrabold text-neutral-400 select-none">01</div>
+    <div>
+      <h4 class="font-bold hover:text-coral-600 cursor-pointer text-lg transition">Reviving Retro PCs</h4>
+      <p class="text-gray-600 text-sm max-w-xs">What happens when old PCs are given modern upgrades?</p>
+    </div>
+  </article>
+
+  <article class="flex gap-4 items-center">
+    <div class="text-4xl font-extrabold text-neutral-400 select-none">02</div>
+    <div>
+      <h4 class="font-bold hover:text-coral-600 cursor-pointer text-lg transition">Top 10 Laptops of 2022</h4>
+      <p class="text-gray-600 text-sm max-w-xs">Our best picks for various needs and budgets.</p>
+    </div>
+  </article>
+
+  <article class="flex gap-4 items-center">
+    <div class="text-4xl font-extrabold text-neutral-400 select-none">03</div>
+    <div>
+      <h4 class="font-bold hover:text-coral-600 cursor-pointer text-lg transition">The Growth of Gaming</h4>
+      <p class="text-gray-600 text-sm max-w-xs">How the pandemic has sparked fresh opportunities.</p>
+    </div>
+  </article>
+</section>
+
+</body>
+</html>
+
