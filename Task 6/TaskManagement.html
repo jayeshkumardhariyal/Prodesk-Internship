@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kanban Task Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom colors and fonts to replicate the dark theme and style */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #1f2028;
+    }
+    /* Scrollbar styling for columns */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #282c3a;
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #555770;
+      border-radius: 5px;
+      border: 2px solid #282c3a;
+    }
+    /* Hide default focus outlines but keep accessibility */
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 2px solid #6b68f6;
+      outline-offset: 2px;
+    }
+    /* Smooth transitions on theme toggle and hover */
+    .transition-theme {
+      transition: background-color 0.3s, color 0.3s;
+    }
+    /* Scroll snapping for horizontal columns */
+    .horizontal-scroll {
+      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .column {
+      scroll-snap-align: start;
+    }
+    /* Max lines for subtasks */
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;  
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="flex text-slate-300 select-none min-h-screen relative" >
+  <!-- Sidebar -->
+  <aside id="sidebar" class="bg-[#16161f] w-60 flex flex-col shrink-0 z-30">
+    <div class="flex items-center gap-2 px-6 py-6 border-b border-[#252535] flex-shrink-0">
+      <div class="flex h-6 w-6 rounded-sm bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600"></div>
+      <span class="font-semibold text-lg tracking-wide select-text text-slate-200">kanban</span>
+    </div>
+    <nav aria-label="Boards navigation" class="flex flex-col gap-1 px-2 py-4 overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-indigo-700 scrollbar-track-transparent">
+      <template id="board-list-item-template">
+        <button class="board-item flex items-center gap-2 px-4 py-3 rounded-md hover:bg-[#252535] transition-theme text-sm font-medium w-full text-left cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v4a1 1 0 001 1h6M13 7v10m-6 0h6m6-14v4a1 1 0 001 1h.01M13 17h6m-6-4h6" />
+          </svg>
+          <span class="board-name truncate"></span>
+        </button>
+      </template>
+      <button id="createBoard" class="flex items-center gap-2 mt-2 px-4 py-3 rounded-md cursor-pointer text-indigo-500 hover:text-indigo-400 text-sm font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        Create New Board
+      </button>
+    </nav>
+    <div class="px-6 py-4 border-t border-[#252535] flex justify-between items-center text-sm text-slate-400">
+      <div class="flex items-center gap-3 select-text">
+        <svg id="modeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-11a9 9 0 01-13.32 0" />
+        </svg>
+        <span id="modeLabel">Light</span>
+        <button id="modeToggle" class="inline-flex items-center justify-center rounded-full h-6 w-12 bg-indigo-600 hover:bg-indigo-700 relative" aria-label="Toggle dark mode" aria-pressed="false" role="switch" tabindex="0">
+          <span class="bg-white w-5 h-5 rounded-full shadow-md transform duration-300 absolute left-0.5 top-0.5 toggle-circle"></span>
+        </button>
+      </div>
+      <button id="hideSidebarBtn" class="flex items-center gap-1 text-slate-400 text-xs hover:text-slate-300 transition-theme select-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Hide Sidebar
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex flex-col flex-1 p-6 gap-6 overflow-x-hidden overflow-y-auto relative" style="background-color:#252535;">
+    <header class="flex items-center justify-between text-white">
+      <h1 id="boardTitle" class="text-xl font-semibold tracking-wide select-text">Platform Launch</h1>
+      <div class="flex gap-3 items-center">
+        <button id="addTaskBtn" class="bg-indigo-600 hover:bg-indigo-700 transition-theme rounded-full px-4 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          + Add New Task
+        </button>
+        <button id="boardMenuBtn" class="relative p-1 rounded-full hover:bg-[#2f2f42]" aria-label="Board menu" title="Board menu">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="5" cy="12" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="19" cy="12" r="1.5" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Kanban board columns container -->
+    <section id="columnsContainer" class="flex gap-6 horizontal-scroll overflow-x-auto snap-x snap-mandatory pb-12">
+      <!-- Dynamically inserted columns here -->
+    </section>
+
+    <button id="addColumnBtn" class="text-slate-400 hover:text-slate-200 bg-[#2f2f42] px-4 py-3 rounded-md min-w-[9rem] shrink-0 self-center border border-dashed border-slate-700">
+      + New Column
+    </button>
+  </main>
+
+  <!-- Templates for columns and tasks -->
+  <template id="column-template">
+    <div class="column w-72 flex flex-col gap-4 bg-[#2f2f42] rounded-md p-4 snap-start shrink-0 min-h-[24rem] max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-[#2f2f42]" >
+      <h2 class="flex items-center gap-2 font-semibold text-xs uppercase tracking-wide select-text">
+        <span class="circle w-3 h-3 rounded-full block"></span>
+        <span class="column-name flex-1"></span>
+        <span class="task-count text-slate-400 text-xs font-normal"></span>
+      </h2>
+      <div class="tasks flex flex-col gap-3 flex-grow overflow-auto"></div>
+    </div>
+  </template>
+
+  <template id="task-template">
+    <div class="task bg-[#16161f] rounded-md p-3 cursor-pointer hover:bg-[#3f3f5a] transition-theme select-text" tabindex="0">
+      <p class="task-title font-medium text-sm leading-snug break-words"></p>
+      <p class="subtask-info mt-1 text-[0.625rem] text-slate-400"></p>
+    </div>
+  </template>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 opacity-0 pointer-events-none transition-opacity z-40">
+    <div class="bg-[#2f2f42] rounded-md max-w-lg w-full p-6 relative" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+      <h2 id="modalTitle" class="text-white text-lg font-semibold mb-4"></h2>
+      <form id="modalForm" class="flex flex-col gap-4 text-slate-300" novalidate>
+        <label>
+          <span class="block mb-1 text-sm font-semibold">Task Title</span>
+          <input id="taskTitleInput" name="title" type="text" required maxlength="100" placeholder="e.g. Design settings and search pages" autocomplete="off" 
+            class="w-full rounded-md border border-slate-600 bg-[#16161f] p-2 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <small class="hidden text-red-500 mt-1" id="titleError">Title is required.</small>
+        </label>
+        <label>
+          <span class="block mb-1 text-sm font-semibold">Subtasks</span>
+          <div id="subtasksContainer" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-2">
+            <!-- Subtask inputs inserted here -->
+          </div>
+          <button type="button" id="addSubtaskBtn" class="mt-2 text-indigo-400 text-sm font-semibold self-start hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">+ Add New Subtask</button>
+        </label>
+        <div class="flex justify-end gap-4 pt-4">
+          <button type="button" id="cancelModalBtn" class="text-slate-400 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded px-3 py-1">Cancel</button>
+          <button type="submit" id="saveTaskBtn" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500" >Save Task</button>
+        </div>
+      </form>
+      <button id="modalCloseBtn" aria-label="Close modal" class="absolute top-3 right-3 text-slate-400 hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // Elements
+      const sidebar = document.getElementById('sidebar');
+      const hideSidebarBtn = document.getElementById('hideSidebarBtn');
+      const modeToggle = document.getElementById('modeToggle');
+      const modeIcon = document.getElementById('modeIcon');
+      const modeLabel = document.getElementById('modeLabel');
+      const boardTitle = document.getElementById('boardTitle');
+      const columnsContainer = document.getElementById('columnsContainer');
+      const addTaskBtn = document.getElementById('addTaskBtn');
+      const addColumnBtn = document.getElementById('addColumnBtn');
+      const modal = document.getElementById('modal');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const cancelModalBtn = document.getElementById('cancelModalBtn');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalForm = document.getElementById('modalForm');
+      const taskTitleInput = document.getElementById('taskTitleInput');
+      const subtasksContainer = document.getElementById('subtasksContainer');
+      const addSubtaskBtn = document.getElementById('addSubtaskBtn');
+      const saveTaskBtn = document.getElementById('saveTaskBtn');
+      const boardList = document.querySelector('nav[aria-label="Boards navigation"]');
+      const createBoardBtn = document.getElementById('createBoard');
+      const boardMenuBtn = document.getElementById('boardMenuBtn');
+
+      // Templates
+      const columnTemplate = document.getElementById('column-template');
+      const taskTemplate = document.getElementById('task-template');
+      const boardListItemTemplate = document.getElementById('board-list-item-template');
+
+      // Data storage keys
+      const STORAGE_KEY = 'kanbanData';
+
+      /** Data structure example
+       * {
+       *   boards: [
+       *     {
+       *       id: 'uuid',
+       *       name: 'Platform Launch',
+       *       columns: [
+       *         { id: 'todo', name:'TODO', color: '#6366f1', tasks: [ { id: 'id1', title: 'task1', subtasks: [{title:'', done: true}] } ] },
+       *         ...
+       *       ]
+       *     },
+       *     ...
+       *   ],
+       *   activeBoardId: 'uuid'
+       * }
+       */
+
+      // Default demo data to replicate the image content roughly
+      const defaultData = {
+        boards: [
+          {
+            id: 'board-1',
+            name: 'Platform Launch',
+            columns: [
+              {
+                id: 'todo',
+                name: 'TODO',
+                color: '#6366F1', // indigo-500 with alpha
+                tasks: [
+                  { id: 't1', title: 'Build UI for onboarding flow', subtasks: [
+                    { title: 'Subtask 1', done: false },
+                    { title: 'Subtask 2', done: false },
+                    { title: 'Subtask 3', done: false }
+                  ] },
+                  { id: 't2', title: 'Build UI for search', subtasks: [
+                    { title: 'Subtask 1', done: false }
+                  ] },
+                  { id: 't3', title: 'Build settings UI', subtasks: [
+                    { title: 'Subtask 1', done: false },
+                    { title: 'Subtask 2', done: false }
+                  ] },
+                  { id: 't4', title: 'QA and test all major user journeys', subtasks: [
+                    { title: 'Subtask 1', done: false },
+                    { title: 'Subtask 2', done: false }
+                  ] }
+                ]
+              },
+              {
+                id: 'doing',
+                name: 'DOING',
+                color: '#7C3AED', // purple-600 with alpha
+                tasks: [
+                  { id: 't5', title: 'Design settings and search pages', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: false },
+                    { title: 'Subtask 3', done: false },
+                  ] },
+                  { id: 't6', title: 'Add account management endpoints', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: true },
+                    { title: 'Subtask 3', done: false }
+                  ] },
+                  { id: 't7', title: 'Design onboarding flow', subtasks: [
+                    { title: 'Subtask 1', done: false },
+                    { title: 'Subtask 2', done: false },
+                    { title: 'Subtask 3', done: false }
+                  ] },
+                  { id: 't8', title: 'Add search endpoints', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: false }
+                  ] },
+                  { id: 't9', title: 'Add authentication endpoints', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: false }
+                  ] },
+                  { id: 't10', title: 'Research pricing points of various competitors and trial different business models', subtasks: [
+                    { title: 'Subtask 1', done: false },
+                    { title: 'Subtask 2', done: false },
+                    { title: 'Subtask 3', done: false }
+                  ] }
+                ]
+              },
+              {
+                id: 'done',
+                name: 'DONE',
+                color: '#34D399', // emerald-400 with alpha
+                tasks: [
+                  { id: 't11', title: 'Conduct 5 wireframe tests', subtasks: [
+                    { title: 'Subtask 1', done: true }
+                  ] },
+                  { id: 't12', title: 'Create wireframe prototype', subtasks: [
+                    { title: 'Subtask 1', done: true }
+                  ] },
+                  { id: 't13', title: 'Review results of usability tests and iterate', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: true },
+                    { title: 'Subtask 3', done: true }
+                  ] },
+                  { id: 't14', title: 'Create paper prototypes and conduct 10 usability tests with potential customers', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: true }
+                  ] },
+                  { id: 't15', title: 'Market discovery', subtasks: [
+                    { title: 'Subtask 1', done: true }
+                  ] },
+                  { id: 't16', title: 'Competitor analysis', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: true }
+                  ] },
+                  { id: 't17', title: 'Research the market', subtasks: [
+                    { title: 'Subtask 1', done: true },
+                    { title: 'Subtask 2', done: true }
+                  ] }
+                ]
+              }
+            ],
+          }
+        ],
+        activeBoardId: 'board-1'
+      };
+
+      // -------------------------------------------------
+      // State variables
+      let data = null;
+      let activeBoard = null;
+      let darkMode = true;
+
+      // Utils
+      const generateId = () => 'id-' + Math.random().toString(16).slice(2);
+      function countDoneSubtasks(subtasks) {
+        return subtasks.reduce((acc, st) => acc + (st.done ? 1 : 0), 0);
+      }
+
+      /** Save state to localStorage */
+      function saveData() {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {
+          console.error('Error saving data', e);
+        }
+      }
+
+      /** Load state from localStorage or default */
+      function loadData() {
+        try {
+          const stored = window.localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            data = JSON.parse(stored);
+            // Validate minimal structure
+            if (!data.boards || !Array.isArray(data.boards)) throw new Error('Invalid data');
+            if (!data.activeBoardId) throw new Error('Invalid data');
+            activeBoard = data.boards.find(b => b.id === data.activeBoardId);
+            if (!activeBoard) activeBoard = data.boards[0];
+          } else {
+            data = defaultData;
+            activeBoard = data.boards[0];
+          }
+        } catch {
+          data = defaultData;
+          activeBoard = data.boards[0];
+        }
+      }
+
+      /** Switch active board */
+      function switchBoard(boardId) {
+        const board = data.boards.find(b => b.id === boardId);
+        if (!board) return;
+        activeBoard = board;
+        data.activeBoardId = boardId;
+        saveData();
+        boardTitle.textContent = activeBoard.name;
+        renderBoard();
+        renderBoardList();
+      }
+
+      /** Toggle sidebar show/hide */
+      function toggleSidebar() {
+        sidebar.classList.toggle('-translate-x-full');
+        if (sidebar.classList.contains('-translate-x-full')) {
+          hideSidebarBtn.textContent = 'Show Sidebar';
+          hideSidebarBtn.querySelector('svg path').setAttribute('d', 'M9 5l7 7-7 7');
+        } else {
+          hideSidebarBtn.textContent = 'Hide Sidebar';
+          hideSidebarBtn.querySelector('svg path').setAttribute('d', 'M15 19l-7-7 7-7');
+        }
+      }
+
+      /** Toggle dark/light mode */
+      function toggleDarkMode() {
+        darkMode = !darkMode;
+        if (darkMode) {
+          document.documentElement.classList.add('dark');
+          modeLabel.textContent = 'Light';
+          modeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m8.66-11a9 9 0 01-13.32 0" />
+          `;
+          modeToggle.setAttribute('aria-pressed', "false");
+          modeToggle.querySelector('.toggle-circle').classList.remove('translate-x-6');
+        } else {
+          document.documentElement.classList.remove('dark');
+          modeLabel.textContent = 'Dark';
+          modeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m7.071-10.071a8 8 0 11-11.313 0 8 8 0 0111.313 0z"/>
+          `;
+          modeToggle.setAttribute('aria-pressed', "true");
+          modeToggle.querySelector('.toggle-circle').classList.add('translate-x-6');
+        }
+      }
+
+      /** Render board list in sidebar */
+      function renderBoardList() {
+        // Remove all except the "Create New Board" button
+        const existingBoards = Array.from(boardList.querySelectorAll('button.board-item'));
+        existingBoards.forEach(btn => btn.remove());
+
+        data.boards.forEach(board => {
+          const clone = boardListItemTemplate.content.firstElementChild.cloneNode(true);
+          clone.querySelector('.board-name').textContent = board.name;
+          if (board.id === activeBoard.id) {
+            clone.classList.add('bg-indigo-600', 'text-white');
+            clone.setAttribute('aria-current', 'true');
+          } else {
+            clone.classList.remove('bg-indigo-600', 'text-white');
+            clone.removeAttribute('aria-current');
+          }
+          clone.addEventListener('click', () => switchBoard(board.id));
+          boardList.insertBefore(clone, createBoardBtn);
+        });
+      }
+
+      /** Render the entire active board */
+      function renderBoard() {
+        columnsContainer.innerHTML = '';
+        activeBoard.columns.forEach(col => {
+          const colClone = columnTemplate.content.firstElementChild.cloneNode(true);
+          colClone.querySelector('.column-name').textContent = col.name;
+          colClone.querySelector('.circle').style.backgroundColor = col.color;
+          colClone.querySelector('.task-count').textContent = `(${col.tasks.length})`;
+          const tasksWrap = colClone.querySelector('.tasks');
+          col.tasks.forEach(task => {
+            const taskClone = taskTemplate.content.firstElementChild.cloneNode(true);
+            taskClone.querySelector('.task-title').textContent = task.title;
+            const subtasksDone = countDoneSubtasks(task.subtasks);
+            taskClone.querySelector('.subtask-info').textContent = `${subtasksDone} of ${task.subtasks.length} subtasks`;
+            taskClone.addEventListener('click', () => openTaskDetails(task, col));
+            // Manage keyboard accessibility and focus styling
+            taskClone.setAttribute('tabindex', '0');
+            tasksWrap.appendChild(taskClone);
+          });
+          columnsContainer.appendChild(colClone);
+        });
+      }
+
+      /** Open modal to add or edit task (for now add only) */
+      function openAddTaskModal() {
+        modalTitle.textContent = 'Add New Task';
+        taskTitleInput.value = '';
+        subtasksContainer.innerHTML = '';
+        addEmptySubtaskInput();
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        taskTitleInput.focus();
+        // Reset form validation state
+        hideAllErrors();
+        editingTask = null;
+        editingColumn = null;
+      }
+
+      /** Close modal */
+      function closeModal() {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      /** Add an empty subtask input to modal */
+      function addEmptySubtaskInput(value = '', done = false) {
+        const id = generateId();
+        const div = document.createElement('div');
+        div.className = 'flex gap-2 items-center';
+        div.innerHTML = `
+          <input type="text" class="flex-grow rounded-md border border-slate-600 bg-[#16161f] p-2 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" placeholder="Subtask title" value="${value}" maxlength="100" />
+          <button type="button" title="Remove subtask" aria-label="Remove subtask" class="text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 rounded p-1 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        `;
+        subtasksContainer.appendChild(div);
+        const removeBtn = div.querySelector('button');
+        removeBtn.addEventListener('click', () => {
+          subtasksContainer.removeChild(div);
+        });
+        return div;
+      }
+
+      /** Hide all form validation errors */
+      function hideAllErrors() {
+        modalForm.querySelectorAll('small:text-red-500').forEach(el => (el.style.display = 'none'));
+      }
+
+      /** Open Task Details modal (basic for now, just alert) */
+      function openTaskDetails(task, column) {
+        // For now, just alert the task info with subtasks and done stats
+        const subtasksDone = countDoneSubtasks(task.subtasks);
+        alert(`Task: ${task.title}\nSubtasks: ${subtasksDone} of ${task.subtasks.length} done`);
+      }
+
+      /**
+       * Add a new task to active board and chosen column
+       * @param {string} title 
+       * @param {Array} subtasks 
+       * @param {string} columnId 
+       */
+      function addTask(title, subtasks, columnId) {
+        const column = activeBoard.columns.find(c => c.id === columnId);
+        if (!column) return;
+        column.tasks.push({
+          id: generateId(),
+          title,
+          subtasks,
+        });
+        saveData();
+        renderBoard();
+      }
+
+      /**
+       * Validate form inputs
+       * @returns boolean
+       */
+      function validateForm() {
+        let valid = true;
+        if (!taskTitleInput.value.trim()) {
+          valid = false;
+          showError('titleError');
+        } else {
+          hideError('titleError');
+        }
+        // Validate subtasks titles non empty if any
+        const inputs = subtasksContainer.querySelectorAll('input[type=text]');
+        inputs.forEach(input => {
+          if (!input.value.trim()) {
+            valid = false;
+            input.classList.add('border-red-500');
+          } else {
+            input.classList.remove('border-red-500');
+          }
+        });
+        return valid;
+      }
+      function showError(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'block';
+      }
+      function hideError(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      }
+
+      // Track editing task and column to enable edit (extensibility)
+      let editingTask = null;
+      let editingColumn = null;
+
+      /** Save task from modal form */
+      function saveTaskFromForm(e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        const title = taskTitleInput.value.trim();
+        const subtasks = Array.from(subtasksContainer.querySelectorAll('input[type=text]'))
+          .map(input => ({
+            title: input.value.trim(),
+            done: false
+          }))
+          .filter(st => st.title.length > 0);
+
+        if (editingTask && editingColumn) {
+          // Implement edit mode if desired later
+        } else {
+          // Add new task always to TODO column by default or first column
+          const defaultColumnId = activeBoard.columns[0]?.id;
+          if (!defaultColumnId) {
+            alert('No column to add tasks to.');
+            return;
+          }
+          addTask(title, subtasks, defaultColumnId);
+        }
+        closeModal();
+      }
+
+      /** Add a new column */
+      function addColumn() {
+        const colName = prompt('Enter new column name:', 'New Column');
+        if (colName && colName.trim()) {
+          const colId = colName.toLowerCase().replace(/ +/g, '-').replace(/[^\w-]+/g, '') || generateId();
+          const colColor = getRandomColor();
+          activeBoard.columns.push({
+            id: colId,
+            name: colName.trim(),
+            color: colColor,
+            tasks: []
+          });
+          saveData();
+          renderBoard();
+        }
+      }
+
+      /** Generate a visually pleasing random color from palette */
+      function getRandomColor() {
+        const colors = [
+          '#6366F1', // Indigo-500
+          '#7C3AED', // Purple-600
+          '#34D399', // Emerald-400
+          '#FBBF24', // Yellow-400
+          '#F87171', // Red-400
+          '#60A5FA', // Blue-400
+          '#A78BFA'  // Violet-400
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      /** Create a new board */
+      function createBoard() {
+        const boardName = prompt('Enter new board name:', 'New Board');
+        if (!boardName || !boardName.trim()) {
+          return;
+        }
+        const newBoard = {
+          id: generateId(),
+          name: boardName.trim(),
+          columns: [
+            {
+              id: 'todo',
+              name: 'TODO',
+              color: '#6366F1',
+              tasks: []
+            },
+            {
+              id: 'doing',
+              name: 'DOING',
+              color: '#7C3AED',
+              tasks: []
+            },
+            {
+              id: 'done',
+              name: 'DONE',
+              color: '#34D399',
+              tasks: []
+            }
+          ]
+        };
+        data.boards.push(newBoard);
+        data.activeBoardId = newBoard.id;
+        activeBoard = newBoard;
+        saveData();
+        switchBoard(newBoard.id);
+      }
+
+      /** Initialize app */
+      function init() {
+        loadData();
+        renderBoardList();
+        renderBoard();
+        // Set dark mode per initial config
+        if (darkMode) {
+          document.documentElement.classList.add('dark');
+          modeLabel.textContent = 'Light';
+          modeToggle.setAttribute('aria-pressed', "false");
+          modeToggle.querySelector('.toggle-circle').classList.remove('translate-x-6');
+        }
+      }
+
+      // Event bindings
+      hideSidebarBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleSidebar();
+      });
+
+      modeToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleDarkMode();
+      });
+
+      addTaskBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openAddTaskModal();
+      });
+
+      modalCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal();
+      });
+
+      cancelModalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal();
+      });
+
+      addSubtaskBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addEmptySubtaskInput();
+      });
+
+      modalForm.addEventListener('submit', saveTaskFromForm);
+
+      addColumnBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addColumn();
+      });
+
+      createBoardBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        createBoard();
+      });
+
+      // Accessibility: Close modal on Escape key
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('opacity-0')) {
+          closeModal();
+        }
+      });
+
+      init();
+    })();
+  </script>
+</body>
+</html>
+
