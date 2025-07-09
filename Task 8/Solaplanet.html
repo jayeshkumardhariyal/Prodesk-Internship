@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #0a0a1a;
+            color: #e0e0e0;
+        }
+        .orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .planet-card {
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+        }
+        .planet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .planet-image-container {
+            perspective: 1000px;
+        }
+        .planet-image {
+            transition: transform 0.5s ease;
+        }
+        .planet-image:hover {
+            transform: rotateY(15deg) scale(1.05);
+        }
+        .active-section {
+            border-left: 4px solid #4f46e5;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .nav-btn {
+            transition: all 0.2s ease;
+        }
+        .nav-btn:hover {
+            color: #a5b4fc;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation Sidebar -->
+    <div class="fixed top-0 left-0 h-full w-64 bg-gray-900 shadow-xl z-10 hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-indigo-400 orbitron mb-8">SOLAR SYSTEM EXPLORER</h1>
+            <div class="space-y-2">
+                <button data-target="home" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-indigo-400">◉</span>
+                    <span>Home</span>
+                </button>
+                <button data-target="mercury" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-gray-400">●</span>
+                    <span>Mercury</span>
+                </button>
+                <button data-target="venus" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-yellow-200">●</span>
+                    <span>Venus</span>
+                </button>
+                <button data-target="earth" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-blue-400">●</span>
+                    <span>Earth</span>
+                </button>
+                <button data-target="mars" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-red-400">●</span>
+                    <span>Mars</span>
+                </button>
+                <button data-target="jupiter" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-yellow-600">●</span>
+                    <span>Jupiter</span>
+                </button>
+                <button data-target="saturn" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-yellow-300">●</span>
+                    <span>Saturn</span>
+                </button>
+                <button data-target="uranus" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-teal-300">●</span>
+                    <span>Uranus</span>
+                </button>
+                <button data-target="neptune" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-3">
+                    <span class="text-blue-300">●</span>
+                    <span>Neptune</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden fixed top-0 left-0 w-full bg-gray-900 p-4 z-10">
+        <select id="mobileNav" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="home">Home</option>
+            <option value="mercury">Mercury</option>
+            <option value="venus">Venus</option>
+            <option value="earth">Earth</option>
+            <option value="mars">Mars</option>
+            <option value="jupiter">Jupiter</option>
+            <option value="saturn">Saturn</option>
+            <option value="uranus">Uranus</option>
+            <option value="neptune">Neptune</option>
+        </select>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64 p-6 pt-20 md:pt-6">
+        <!-- Home Page -->
+        <div id="home" class="page active-section">
+            <div class="max-w-6xl mx-auto">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 text-indigo-400 orbitron">EXPLORE OUR SOLAR SYSTEM</h1>
+                <p class="text-lg mb-8 max-w-3xl">Our solar system consists of a star, the Sun, and everything bound to it by gravity - the planets Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune, along with dwarf planets, moons, asteroids, comets, and meteoroids.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/136e58fb-3e0e-403f-8987-d759c99b8b40.png" alt="Mercury - smallest planet closest to the Sun with cratered surface and no atmosphere" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Mercury</h3>
+                        <p class="text-sm text-gray-300 mb-3">The smallest planet in our solar system</p>
+                        <button data-target="mercury" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/278e57e0-cd2b-45e6-b227-3f7410c67578.png" alt="Venus - hottest planet with thick toxic atmosphere and volcanic landscape" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Venus</h3>
+                        <p class="text-sm text-gray-300 mb-3">The hottest planet in our solar system</p>
+                        <button data-target="venus" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/366ed047-f68e-44f2-9693-190b5329ff1d.png" alt="Earth - blue planet with oceans, continents and atmosphere seen from space" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Earth</h3>
+                        <p class="text-sm text-gray-300 mb-3">Our home planet with liquid water</p>
+                        <button data-target="earth" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4e21c1c2-13fd-4754-8c06-3d0295ddb47c.png" alt="Mars - red planet with surface features including deserts, canyons and polar ice caps" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Mars</h3>
+                        <p class="text-sm text-gray-300 mb-3">The Red Planet with tallest volcano</p>
+                        <button data-target="mars" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/12c4cc35-d7b9-4af9-91e4-b00caf845ace.png" alt="Jupiter - largest gas giant with colorful cloud bands and Great Red Spot storm" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Jupiter</h3>
+                        <p class="text-sm text-gray-300 mb-3">The largest planet in our solar system</p>
+                        <button data-target="jupiter" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4b294f10-c18d-4c6f-befe-2b3f4ff9956d.png" alt="Saturn - gas giant with spectacular icy rings and hexagonal north pole storm" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Saturn</h3>
+                        <p class="text-sm text-gray-300 mb-3">The planet with beautiful rings</p>
+                        <button data-target="saturn" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/87153f16-0a50-415b-8893-8df1b016b44e.png" alt="Uranus - ice giant tilted on its side with pale blue-green color and faint rings" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Uranus</h3>
+                        <p class="text-sm text-gray-300 mb-3">The sideways-spinning planet</p>
+                        <button data-target="uranus" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                    
+                    <div class="planet-card rounded-xl p-6 shadow-lg">
+                        <div class="planet-image-container mb-4">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/a01c7500-e6b1-4ce0-b8d6-bded55bb1db1.png" alt="Neptune - distant blue ice giant with fastest winds in the solar system" class="planet-image w-full rounded-xl">
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 orbitron">Neptune</h3>
+                        <p class="text-sm text-gray-300 mb-3">The windiest planet in our solar system</p>
+                        <button data-target="neptune" class="text-indigo-400 font-semibold text-sm hover:underline">Explore →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mercury Page -->
+        <div id="mercury" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-indigo-400">MERCURY</h1>
+                        <div class="text-lg mb-6">
+                            <p>Mercury is the smallest planet in our solar system and closest to the Sun. It's only slightly larger than Earth's Moon. From the surface of Mercury, the Sun would appear more than three times as large as it does when viewed from Earth.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">4,879 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">3.3 x 10²³ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">1,408 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">88 Earth days</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-173°C to 427°C</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/1d1c1940-26dd-407e-90a7-343471b581e1.png" alt="Detailed view of Mercury's cratered surface with sunlight casting long shadows across the landscape" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Mercury is the fastest planet, zipping around the Sun every 88 Earth days.</li>
+                        <li>• Despite being closest to the Sun, Mercury is not the hottest planet (that's Venus).</li>
+                        <li>• Mercury has a very thin exosphere made mostly of oxygen, sodium, hydrogen, helium, and potassium.</li>
+                        <li>• Mercury's surface resembles that of Earth's Moon, scarred by many impact craters.</li>
+                        <li>• Mercury has no moons or rings.</li>
+                        <li>• Only two spacecraft have visited Mercury: Mariner 10 in 1974-75 and MESSENGER in 2008-15.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Mercury's orbit around the Sun takes just 88 days to complete, but its rotation is so slow that a single day (sunrise to sunrise) lasts 176 Earth days - twice as long as its year!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Venus Page -->
+        <div id="venus" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-yellow-200">VENUS</h1>
+                        <div class="text-lg mb-6">
+                            <p>Venus is the second planet from the Sun and Earth's closest planetary neighbor. Similar in size to Earth, Venus spins slowly in the opposite direction from most planets. Its thick atmosphere traps heat in a runaway greenhouse effect.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">12,104 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">4.87 x 10²⁴ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">5,832 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">225 Earth days</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">462°C (average)</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ff0342c5-66cd-44e7-a54d-858ae9a4caa9.png" alt="Artist's depiction of Venus' thick cloudy atmosphere with volcanic landscape beneath" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Venus is the hottest planet in our solar system with surface temperatures hot enough to melt lead.</li>
+                        <li>• Venus rotates backwards (east to west) compared to most other planets.</li>
+                        <li>• Venus has a toxic atmosphere filled with carbon dioxide and clouds of sulfuric acid.</li>
+                        <li>• The atmospheric pressure on Venus is 92 times that of Earth's - equivalent to being about 900 m underwater.</li>
+                        <li>• Venus has no moons and no rings.</li>
+                        <li>• More than 40 spacecraft have explored Venus, including NASA's Magellan which mapped 98% of the planet's surface.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>A day on Venus lasts longer than a year! Venus takes 243 Earth days to rotate once on its axis (a sidereal day) but only 225 Earth days to orbit the Sun.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earth Page -->
+        <div id="earth" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-blue-400">EARTH</h1>
+                        <div class="text-lg mb-6">
+                            <p>Earth is the third planet from the Sun and the only place known in the universe confirmed to host life. With a radius of 6,371 km, Earth is the fifth largest planet in our solar system and the largest of the terrestrial planets.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">12,742 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">5.97 x 10²⁴ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">24 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">365.25 days</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-88°C to 58°C</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/4bd5d5b5-e55b-481e-9d1a-07dd4ac00be3.png" alt="Blue planet Earth viewed from space with swirling white clouds and landmasses visible" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Earth's atmosphere is 78% nitrogen, 21% oxygen, and 1% other gases - perfect for life as we know it.</li>
+                        <li>• Earth is the only planet not named after a Greek or Roman god or goddess (the name comes from Old English and Germanic).</li>
+                        <li>• Earth's surface is 70% water, earning it the nickname "the Blue Planet".</li>
+                        <li>• Earth's rotation is gradually slowing (about 1.4 milliseconds every 100 years).</li>
+                        <li>• Earth has one natural satellite, the Moon, which stabilizes our planet's axial tilt.</li>
+                        <li>• Thousands of artificial satellites orbit Earth, providing communications, weather data, and navigation.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Earth has a powerful magnetic field generated by the motion of molten iron in its outer core. This magnetic field protects us from the Sun's harmful solar wind and cosmic radiation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mars Page -->
+        <div id="mars" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-red-400">MARS</h1>
+                        <div class="text-lg mb-6">
+                            <p>Mars is the fourth planet from the Sun and the second-smallest planet in the solar system. Known as the "Red Planet" due to iron oxide prevalent on its surface, Mars is a dusty, cold desert world with a thin atmosphere.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">6,779 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">6.39 x 10²³ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">24.6 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">687 Earth days</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-87°C to -5°C</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">2 (Phobos & Deimos)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e4a180f5-627c-42d4-9e5d-7e24ea6f566f.png" alt="Martian landscape with red rocky terrain, distant mountains, and dust-filled sky" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Mars is home to the tallest volcano in the solar system, Olympus Mons, which is about 3 times taller than Mount Everest.</li>
+                        <li>• Mars has the largest dust storms in the solar system, sometimes covering the entire planet.</li>
+                        <li>• Mars has seasons like Earth because its rotational axis is tilted about 25 degrees.</li>
+                        <li>• Evidence suggests Mars was much wetter and warmer billions of years ago, with liquid water on its surface.</li>
+                        <li>• Mars has two small, irregularly shaped moons: Phobos (fear) and Deimos (panic).</li>
+                        <li>• Multiple robotic space probes and rovers have explored Mars, including NASA's Perseverance rover which landed in 2021.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>The Martian sunset appears blue instead of red like on Earth. This is due to how light scatters in Mars' thin atmosphere, which consists mostly of carbon dioxide.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jupiter Page -->
+        <div id="jupiter" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-yellow-600">JUPITER</h1>
+                        <div class="text-lg mb-6">
+                            <p>Jupiter is the fifth planet from the Sun and the largest in the solar system. This gas giant is more than twice as massive as all the other planets combined. Jupiter's familiar stripes and swirls are cold, windy clouds of ammonia and water.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">139,820 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">1.90 x 10²⁷ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">10 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">12 Earth years</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-108°C (average)</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">79 known</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/97769318-4529-45e9-b7dc-24cac72fd3f1.png" alt="Jupiter's swirling atmosphere with colorful cloud bands and the Great Red Spot visible" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Jupiter's Great Red Spot is a giant storm bigger than Earth that has raged for at least 400 years.</li>
+                        <li>• Jupiter rotates faster than any other planet, completing a rotation in just under 10 hours.</li>
+                        <li>• Jupiter has 79 known moons, including the four large Galilean moons: Io, Europa, Ganymede, and Callisto.</li>
+                        <li>• Jupiter has a faint ring system discovered in 1979 by NASA's Voyager 1.</li>
+                        <li>• Jupiter's magnetic field is 20,000 times stronger than Earth's and the largest in the solar system.</li>
+                        <li>• The Juno spacecraft has been orbiting Jupiter since 2016, studying its atmosphere, magnetic field, and interior.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Ganymede, one of Jupiter's moons, is the largest moon in the solar system and is even bigger than the planet Mercury! It's also the only moon known to have its own magnetic field.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saturn Page -->
+        <div id="saturn" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-yellow-300">SATURN</h1>
+                        <div class="text-lg mb-6">
+                            <p>Saturn is the sixth planet from the Sun and the second-largest in the solar system. Famous for its beautiful ring system, Saturn is a gas giant like Jupiter, composed mostly of hydrogen and helium.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">116,460 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">5.68 x 10²⁶ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">10.7 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">29 Earth years</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-139°C (average)</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">82 known</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ce2e4055-8694-41f6-bec5-0dd98e268daf.png" alt="Saturn with its spectacular ring system seen from an angle with moons visible in the distance" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Saturn's rings are made mostly of chunks of ice and rock, ranging in size from dust grains to pieces as big as mountains.</li>
+                        <li>• Saturn is the flattest planet - its polar diameter is 90% of its equatorial diameter due to its low density and fast rotation.</li>
+                        <li>• Saturn has 82 known moons, more than any other planet (though more may be discovered).</li>
+                        <li>• Saturn's moon Titan is larger than Mercury and is the only moon in the solar system with a substantial atmosphere.</li>
+                        <li>• Voyager 1 revealed that Saturn's rings are composed of thousands of individual ringlets.</li>
+                        <li>• The Cassini spacecraft orbited Saturn from 2004-2017, making numerous discoveries about the planet and its moons.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Saturn could float in water! Since Saturn is made up mostly of gases, it has a very low density - only about 0.69 g/cm³ (less than water's 1 g/cm³). Of course, there's no body of water big enough to test this theory.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uranus Page -->
+        <div id="uranus" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-teal-300">URANUS</h1>
+                        <div class="text-lg mb-6">
+                            <p>Uranus is the seventh planet from the Sun and has the third-largest diameter in our solar system. It's an ice giant instead of a gas giant with a bluish-green color from methane gas in the atmosphere. Uranus is unique because it rotates on its side.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">50,724 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">8.68 x 10²⁵ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">17 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">84 Earth years</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-195°C (average)</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">27 known</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f72486f0-5df8-43f3-9387-85e8f63652ba.png" alt="Uranus tilted on its side with faint rings and pale blue-green atmospheric bands visible" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Uranus is the only planet whose equator is nearly at a right angle to its orbit, tilted 97.77 degrees - likely due to a collision with an Earth-sized object.</li>
+                        <li>• Uranus was the first planet discovered with a telescope in 1781 by William Herschel.</li>
+                        <li>• Like Venus, Uranus rotates east to west but is unique in rotating on its side.</li>
+                        <li>• Uranus has 27 known moons, all named after characters from Shakespeare or Alexander Pope's works.</li>
+                        <li>• Uranus has 13 known rings, which are dark and composed of fairly large particles up to 10 meters in diameter.</li>
+                        <li>• Only one spacecraft has visited Uranus: Voyager 2 in 1986, providing most of what we know about the planet.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Seasons on Uranus last over 20 years because it's tilted almost 98 degrees and takes 84 Earth years to orbit the Sun. Each pole gets around 42 years of continuous sunlight followed by 42 years of darkness.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Neptune Page -->
+        <div id="neptune" class="page hidden p-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-8 mb-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl font-bold mb-4 orbitron text-blue-300">NEPTUNE</h1>
+                        <div class="text-lg mb-6">
+                            <p>Neptune is the eighth and most distant planet from the Sun in our solar system. Dark, cold and whipped by supersonic winds, it's an ice giant about 17 times Earth's mass. Neptune was the first planet located through mathematical calculations.</p>
+                        </div>
+                        <div class="stats-grid bg-gray-800 rounded-lg p-6">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DIAMETER</h3>
+                                <p class="text-xl">49,244 km</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MASS</h3>
+                                <p class="text-xl">1.02 x 10²⁶ kg</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">DAY LENGTH</h3>
+                                <p class="text-xl">16 hours</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">YEAR LENGTH</h3>
+                                <p class="text-xl">165 Earth years</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">TEMPERATURE</h3>
+                                <p class="text-xl">-201°C (average)</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-400">MOONS</h3>
+                                <p class="text-xl">14 known</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/73bd5733-e738-486e-b0a9-6d6f79610d7a.png" alt="Deep blue Neptune with swirling storms and high-altitude clouds in its turbulent atmosphere" class="w-full rounded-xl shadow-lg">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Key Facts</h2>
+                    <ul class="space-y-3">
+                        <li>• Neptune is the windiest planet with winds reaching speeds of 2,100 km/h - nearly 9 times faster than Earth's fastest winds.</li>
+                        <li>• Neptune was discovered in 1846 after astronomers predicted its existence based on anomalies in Uranus' orbit.</li>
+                        <li>• Neptune has a system of rings, but they're incomplete arcs rather than complete rings.</li>
+                        <li>• Neptune's largest moon Triton is geologically active, with geysers erupting nitrogen gas and dust up to 8 km high.</li>
+                        <li>• Triton is also the only large moon in the solar system that orbits in the opposite direction to its planet's rotation.</li>
+                        <li>• Only Voyager 2 has visited Neptune, flying by in 1989 and discovering most of what we know about the planet.</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 orbitron">Did You Know?</h2>
+                    <p>Neptune radiates more than twice as much energy as it receives from the Sun. The source of this internal heating remains unknown, but it may be left over from the planet's formation or generated by its highly compressed core.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Desktop navigation
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    navigateTo(target);
+                    setActiveNavButton(target);
+                });
+            });
+
+            // Mobile navigation
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.addEventListener('change', function() {
+                const target = this.value;
+                navigateTo(target);
+            });
+
+            function navigateTo(target) {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.add('hidden');
+                    page.classList.remove('active-section');
+                });
+
+                // Show the selected page
+                const targetPage = document.getElementById(target);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                    targetPage.classList.add('active-section');
+                }
+
+                // Update browser history
+                window.history.pushState({}, '', `#${target}`);
+            }
+
+            function setActiveNavButton(target) {
+                navButtons.forEach(button => {
+                    button.classList.remove('bg-gray-800');
+                    const buttonTarget = button.getAttribute('data-target');
+                    button.querySelector('span:first-child').textContent = '●';
+                    if (buttonTarget === target) {
+                        button.classList.add('bg-gray-800');
+                        button.querySelector('span:first-child').textContent = '◉';
+                    }
+                });
+            }
+
+            // Home page planet cards
+            document.querySelectorAll('#home button[data-target]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    navigateTo(target);
+                    setActiveNavButton(target);
+                });
+            });
+
+            // Check for hash on initial load
+            const initialHash = window.location.hash.substring(1);
+            if (initialHash && document.getElementById(initialHash)) {
+                navigateTo(initialHash);
+                setActiveNavButton(initialHash);
+                document.getElementById('mobileNav').value = initialHash;
+            } else {
+                // Default to home if no hash or invalid hash
+                navigateTo('home');
+                setActiveNavButton('home');
+            }
+        });
+    </script>
+</body>
+</html>
+
