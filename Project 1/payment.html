@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Credit Card - Daily Life</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* Gradient background purple to blue */
+  body {
+    background: linear-gradient(135deg, #7B2FF7 0%, #2CD8D5 100%);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    color: #ECECF1;
+  }
+
+  /* Container with black background box with rounded corners and shadow */
+  .container {
+    background-color: #18181B;
+    max-width: 1200px;
+    margin: 3rem auto 3rem auto;
+    border-radius: 1.5rem;
+    box-shadow:
+      0 35px 60px -15px rgba(0, 0, 0, 0.8);
+    padding: 2rem 3rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+  }
+
+  /* Navigation styles */
+  nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto 0 auto;
+  }
+
+  nav .logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #ECECF1;
+    user-select: none;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2.5rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav ul li {
+    font-weight: 500;
+  }
+
+  nav ul li a {
+    color: #ECECF1;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  nav ul li a:hover,
+  nav ul li a:focus {
+    color: #A78BFA;
+    transform: scale(1.1);
+  }
+
+  nav .btn-group {
+    display: flex;
+    gap: 1rem;
+  }
+
+  button {
+    border-radius: 0.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.6rem 1.6rem;
+    border: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    user-select: none;
+  }
+  button.login-btn {
+    background-color: transparent;
+    color: #ECECF1;
+    border: 1.8px solid #A78BFA;
+  }
+  button.login-btn:hover,
+  button.login-btn:focus {
+    background-color: #A78BFA;
+    color: #18181B;
+    transform: scale(1.05);
+  }
+  button.signup-btn {
+    background-color: #A78BFA;
+    color: #18181B;
+  }
+  button.signup-btn:hover,
+  button.signup-btn:focus {
+    background-color: #8B5CF6;
+    transform: scale(1.05);
+  }
+
+  /* Hero section */
+  .hero-left {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+  }
+  .hero-left .subtitle {
+    color: #A78BFA;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .hero-left h1 {
+    font-weight: 800;
+    font-size: 2.8rem;
+    line-height: 1.1;
+    color: #ECECF1;
+  }
+  .hero-left button.download-btn {
+    background-color: #A78BFA;
+    color: #18181B;
+    align-self: start;
+    padding: 0.8rem 2.2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 0.7rem;
+    box-shadow: 0 5px 15px -4px #A78BFA;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .hero-left button.download-btn:hover,
+  .hero-left button.download-btn:focus {
+    background-color: #8B5CF6;
+    box-shadow: 0 8px 25px -6px #8B5CF6;
+    transform: scale(1.05);
+  }
+
+  .download-btn svg {
+    stroke: #18181B;
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.3;
+  }
+
+  /* Hero right - phone mockup */
+  .hero-right {
+    flex: 1 1 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+  }
+
+  .phone-mockup {
+    background: #202024;
+    width: 320px;
+    height: 640px;
+    border-radius: 2.5rem;
+    padding: 2rem 2.2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      0 30px 60px rgba(0, 0, 0, 0.7);
+    transform-style: preserve-3d;
+    position: relative;
+  }
+
+  /* Top bar with menu icon and welcome text */
+  .phone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .hamburger-icon {
+    width: 25px;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .hamburger-icon span {
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    background: #A78BFA;
+    transition: all 0.3s ease;
+  }
+
+  .phone-welcome {
+    color: #ECECF1;
+    font-weight: 600;
+    font-size: 1rem;
+    user-select: none;
+  }
+
+  /* Cards container */
+  .cards-container {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Credit card component */
+  .credit-card {
+    background: linear-gradient(135deg, #A78BFA 20%, #8B5CF6 100%);
+    border-radius: 1.6rem;
+    padding: 1.4rem 1.8rem;
+    color: #ECECF1;
+    font-weight: 600;
+    font-size: 0.85rem;
+    width: 160px;
+    box-shadow: 0 5px 15px rgba(133, 97, 255, 0.45);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .credit-card:last-child {
+    background: #18181B;
+    color: #A78BFA;
+    box-shadow: 0 6px 12px rgba(167, 139, 250, 0.5);
+  }
+  .credit-card:hover,
+  .credit-card:focus-within {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(133, 97, 255, 0.75);
+    cursor: pointer;
+  }
+
+  .credit-card .label {
+    font-weight: 300;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+    margin-bottom: 0.2rem;
+    user-select: none;
+  }
+  .credit-card .balance {
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .credit-card .card-info {
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.8;
+  }
+
+  /* Content inside cards (2 sections) */
+  .card-section {
+    margin-bottom: 0.9rem;
+  }
+  .card-section span {
+    font-weight: 700;
+    font-size: 1rem;
+    display: block;
+    margin-top: 0.15rem;
+  }
+
+  /* History list below */
+  .history-list {
+    background-color: #242329;
+    border-radius: 1.3rem;
+    padding: 1rem 1.2rem;
+    flex-grow: 1;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    overflow-y: auto;
+  }
+  .history-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .history-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0.2rem;
+    border-bottom: 1px solid #3B3B45;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #C4C4D1DD;
+    transition: background-color 0.3s ease;
+  }
+  .history-list li:last-child {
+    border-bottom: none;
+  }
+  .history-list li:hover {
+    background-color: #414150;
+    color: #A78BFA;
+    cursor: pointer;
+  }
+  .history-list li .amount {
+    font-weight: 700;
+    color: #ECECF1;
+  }
+
+  /* Icons inside history (simplified placeholders) */
+  .history-icon {
+    width: 20px;
+    height: 20px;
+    background: #A78BFA;
+    border-radius: 0.5rem;
+    margin-right: 0.8rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    font-size: 0.85rem;
+    color: #18181B;
+    font-weight: 900;
+  }
+
+  /* Bottom nav icons */
+  .phone-bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1.3rem;
+  }
+  .phone-bottom-nav button {
+    background: #2C2C34;
+    width: 48px;
+    height: 48px;
+    border-radius: 0.9rem;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+  }
+  .phone-bottom-nav button:hover,
+  .phone-bottom-nav button:focus {
+    background-color: #A78BFA;
+    box-shadow: 0 0 12px #A78BFA;
+  }
+  .phone-bottom-nav svg {
+    stroke: #BEBED3;
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.8;
+  }
+  .phone-bottom-nav button:hover svg,
+  .phone-bottom-nav button:focus svg {
+    stroke: #18181B;
+  }
+
+  /* Scrollbar refinement for history list */
+  .history-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .history-list::-webkit-scrollbar-track {
+    background: #18181B;
+    border-radius: 4px;
+  }
+  .history-list::-webkit-scrollbar-thumb {
+    background: #A78BFA;
+    border-radius: 4px;
+  }
+
+  /* Hamburger nav for mobile */
+  .hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100vh;
+    background-color: #18181B;
+    box-shadow: -6px 0 18px rgba(0,0,0,0.85);
+    border-radius: 1.5rem 0 0 1.5rem;
+    transition: right 0.35s ease;
+    flex-direction: column;
+    padding: 4rem 2.5rem 2rem 2.5rem;
+    z-index: 50;
+  }
+  .hamburger-menu.active {
+    right: 0;
+  }
+  .hamburger-menu nav ul {
+    flex-direction: column;
+    gap: 1.3rem;
+  }
+  .hamburger-menu .btn-group {
+    flex-direction: column;
+    margin-top: 2rem;
+  }
+  .hamburger-menu button {
+    width: 100%;
+  }
+  .hamburger-menu-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 2.2rem;
+    color: #A78BFA;
+    cursor: pointer;
+    font-weight: 900;
+    user-select: none;
+  }
+
+  /* Responsive Breakpoints */
+
+  /* Tablets */
+  @media (max-width: 1023px) {
+    .container {
+      flex-direction: column;
+      max-width: 90vw;
+      padding: 2rem 1.8rem 2rem 1.8rem;
+    }
+    .hero-left, .hero-right {
+      flex: none;
+      width: 100%;
+    }
+    .hero-left h1 {
+      font-size: 2.4rem;
+    }
+    .cards-container {
+      justify-content: center;
+    }
+    .phone-mockup {
+      margin: 0 auto;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 639px) {
+    nav ul, nav .btn-group {
+      display: none;
+    }
+    nav .hamburger-toggle {
+      display: flex;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0.3rem;
+      user-select: none;
+    }
+    nav .hamburger-toggle span {
+      display: block;
+      width: 22px;
+      height: 2.6px;
+      background-color: #A78BFA;
+      border-radius: 2px;
+      margin: 4px 0;
+      transition: all 0.3s ease;
+    }
+    .container {
+      padding: 1.8rem 1rem 1.8rem 1rem;
+    }
+    .hero-left h1 {
+      font-size: 2rem;
+    }
+    .hero-left button.download-btn {
+      width: 140px;
+    }
+    .hero-right {
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .phone-mockup {
+      width: 280px;
+      height: 560px;
+      padding: 1.8rem 1.6rem 2.4rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav role="navigation" aria-label="Primary" class="max-w-screen-xl mx-auto px-6 sm:px-12 lg:px-24 sticky top-0 z-50 bg-transparent flex items-center">
+  <div class="logo font-sans font-extrabold">💳</div>
+  <ul class="hidden sm:flex flex-1 justify-center" role="menubar" aria-label="Primary menu">
+    <li role="none"><a href="#" role="menuitem" tabindex="0">Features</a></li>
+    <li role="none"><a href="#" role="menuitem" tabindex="0">Pricing</a></li>
+    <li role="none"><a href="#" role="menuitem" tabindex="0">Help</a></li>
+    <li role="none"><a href="#" role="menuitem" tabindex="0">Blog</a></li>
+    <li role="none"><a href="#" role="menuitem" tabindex="0">About us</a></li>
+  </ul>
+  <div class="btn-group hidden sm:flex items-center justify-end gap-4 flex-shrink-0">
+    <button class="login-btn" aria-label="Log in to your account">Log In</button>
+    <button class="signup-btn" aria-label="Sign up for an account">Sign Up</button>
+  </div>
+  <!-- Hamburger toggle for mobile -->
+  <button aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" class="hamburger-toggle sm:hidden ml-auto">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</nav>
+
+<!-- Mobile Hamburger Menu -->
+<div id="mobile-menu" class="hamburger-menu" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile menu navigation">
+  <button aria-label="Close menu" class="hamburger-menu-close">&times;</button>
+  <nav>
+    <ul role="menu" aria-label="Mobile primary menu">
+      <li role="none"><a href="#" role="menuitem" tabindex="0">Features</a></li>
+      <li role="none"><a href="#" role="menuitem" tabindex="0">Pricing</a></li>
+      <li role="none"><a href="#" role="menuitem" tabindex="0">Help</a></li>
+      <li role="none"><a href="#" role="menuitem" tabindex="0">Blog</a></li>
+      <li role="none"><a href="#" role="menuitem" tabindex="0">About us</a></li>
+    </ul>
+    <div class="btn-group mt-4 flex flex-col gap-4">
+      <button class="login-btn w-full" aria-label="Log in to your account">Log In</button>
+      <button class="signup-btn w-full" aria-label="Sign up for an account">Sign Up</button>
+    </div>
+  </nav>
+</div>
+
+<!-- Main Container -->
+<section class="container" role="main" aria-labelledby="main-heading">
+  <!-- Left Text Column -->
+  <div class="hero-left">
+    <div class="subtitle" aria-label="Start saving money">START SAVING MONEY</div>
+    <h1 id="main-heading" tabindex="0">
+      Smart Credit Card <br />
+      For Your Daily Life.
+    </h1>
+    <button class="download-btn" aria-label="Download Smart Credit Card app">
+      Download
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19v-14M5 12l7-7 7 7" /></svg>
+    </button>
+  </div>
+
+  <!-- Right Phone Mockup Column -->
+  <div class="hero-right" aria-label="Smart credit card mobile interface preview">
+    <div class="phone-mockup" role="region" aria-live="polite" aria-label="Credit card app interface on mobile phone">
+      <header class="phone-header">
+        <button aria-label="Menu" class="hamburger-icon" tabindex="0">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="phone-welcome" tabindex="0">Welcome, Erik</div>
+      </header>
+
+      <div class="cards-container" aria-label="Credit card balances and limits">
+        <!-- Primary Credit Card -->
+        <article class="credit-card" tabindex="0" aria-label="Credit card balance $39,898. Visa ending in 3456">
+          <div class="label">Balance</div>
+          <div class="balance">$39,898</div>
+          <div class="card-info">Visa &nbsp;•••• 3456</div>
+        </article>
+
+        <!-- Secondary Card -->
+        <article class="credit-card" tabindex="0" aria-label="Secondary credit card balance $39,898. Visa ending in 3456" aria-describedby="card-desc-2">
+          <div class="label">Balance</div>
+          <div class="balance">$39,898</div>
+          <div class="card-info">Visa &nbsp;•••• 3456</div>
+          <div id="card-desc-2" class="mt-2" aria-hidden="true">
+            <div class="card-section">
+              Credit Limits
+              <span>$12,000</span>
+            </div>
+            <div class="card-section">
+              Monthly Spend
+              <span>$1,234.00</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- History Section -->
+      <section class="history-list" aria-labelledby="history-label" tabindex="0">
+        <h2 id="history-label" class="sr-only">Transaction History</h2>
+        <ul>
+          <li tabindex="0" aria-label="MacDonald's transaction $50">
+            <span class="history-icon" aria-hidden="true">M</span>
+            <span>McDonald's</span>
+            <span class="amount">$50</span>
+          </li>
+          <li tabindex="0" aria-label="Netflix transaction $120">
+            <span class="history-icon" aria-hidden="true">N</span>
+            <span>Netflix</span>
+            <span class="amount">$120</span>
+          </li>
+          <li tabindex="0" aria-label="Starbucks transaction $12">
+            <span class="history-icon" aria-hidden="true">S</span>
+            <span>Starbucks</span>
+            <span class="amount">$12</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Bottom navigation icons -->
+      <nav class="phone-bottom-nav" role="navigation" aria-label="Phone app primary navigation">
+        <button aria-label="Home" tabindex="0">
+          <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12l9-9 9 9v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zM9 21v-6h6v6"/>
+          </svg>
+        </button>
+        <button aria-label="Add transaction" tabindex="0">
+          <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 5v14m-7-7h14"/>
+          </svg>
+        </button>
+        <button aria-label="Settings" tabindex="0">
+          <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.03a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.03a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.03a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Hamburger menu toggle
+  const hamburgerToggle = document.querySelector('button.hamburger-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileCloseBtn = document.querySelector('.hamburger-menu-close');
+
+  function openMenu() {
+    mobileMenu.classList.add('active');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    hamburgerToggle.setAttribute('aria-expanded', 'true');
+    mobileCloseBtn.focus();
+    document.body.style.overflow = 'hidden'; // prevent background scroll
+  }
+  function closeMenu() {
+    mobileMenu.classList.remove('active');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    hamburgerToggle.setAttribute('aria-expanded', 'false');
+    hamburgerToggle.focus();
+    document.body.style.overflow = '';
+  }
+
+  hamburgerToggle.addEventListener('click', () => {
+    if (mobileMenu.classList.contains('active')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  mobileCloseBtn.addEventListener('click', closeMenu);
+
+  // Close menu on outside click
+  document.addEventListener('click', (e) => {
+    if (!mobileMenu.contains(e.target) && !hamburgerToggle.contains(e.target) && mobileMenu.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+
+  // Accessibility: close on Escape key
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+      closeMenu();
+    }
+  });
+</script>
+
+</body>
+</html>
+
